@@ -1558,6 +1558,32 @@ a {
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
 }
+
+/* ── MODERN: CSS scroll-driven animation (Chrome 115+) ──
+ * Native compositor-thread scroll animation. The browser computes the
+ * roadmap fill scaleY directly from the section's scroll position — NO
+ * main-thread JS work, NO scroll listener, NO rAF dispatch. Pure GPU.
+ *
+ * Falls back gracefully: older browsers run the JS handler in app.js.
+ * JS feature-detects CSS.supports("animation-timeline", "scroll()") and
+ * skips its handler when CSS works, avoiding double-animation conflicts. */
+@supports (animation-timeline: view()) {
+  #roadmap-section {
+    view-timeline-name: --roadmap-view;
+    view-timeline-axis: block;
+  }
+  .roadmap__line-fill {
+    animation: roadmap-fill-anim linear forwards;
+    animation-timeline: --roadmap-view;
+    animation-range: cover 5% cover 75%;
+    /* Override the transition so the CSS-driven animation is direct */
+    transition: none;
+  }
+  @keyframes roadmap-fill-anim {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+}
 .roadmap__items {
   display: flex;
   flex-direction: column;

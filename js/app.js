@@ -536,6 +536,12 @@ function initRoadmap() {
   const section = document.getElementById("roadmap-section");
   const fill = document.getElementById("roadmap-fill");
   if (!section || !fill) return;
+  /* If the browser supports CSS scroll-driven animation (Chrome 115+),
+   * the roadmap fill is handled entirely on the compositor thread via
+   * the @supports rule in site.css. No JS scroll work needed. */
+  if (typeof CSS !== "undefined" && CSS.supports && CSS.supports("animation-timeline", "view()")) {
+    return;
+  }
   let lastScale = -1;
   onScrollSplit(
     /* READ */
