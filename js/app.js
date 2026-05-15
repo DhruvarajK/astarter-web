@@ -1578,15 +1578,40 @@ function initAboxWhenVisible() {
 })();
 
 /* Service worker — instant repeat visits + offline fallback.
- * Registered only on http(s); skipped on file:// to avoid noisy errors. */
+ * Registered only on http(s); skipped on file:// to avoid noisy errors.
+ *
+ * Auto-update flow: when a new SW activates (e.g. after we bump VERSION),
+ * we listen for the `controllerchange` event and force-reload the page
+ * once so the user immediately sees the new content. This eliminates the
+ * "user has to manually hard-reload after I push" cache-update lag. */
 if (
   "serviceWorker" in navigator &&
   typeof location !== "undefined" &&
   /^https?:$/.test(location.protocol)
 ) {
+  let reloadingOnce = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloadingOnce) return;
+    reloadingOnce = true;
+    window.location.reload();
+  });
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("sw.js", { scope: "./" })
+      .then((reg) => {
+        /* If a new SW is waiting, ask it to take over immediately */
+        if (reg.waiting) reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        reg.addEventListener("updatefound", () => {
+          const sw = reg.installing;
+          if (!sw) return;
+          sw.addEventListener("statechange", () => {
+            if (sw.state === "installed" && navigator.serviceWorker.controller) {
+              /* New SW installed alongside old one — take over now */
+              sw.postMessage({ type: "SKIP_WAITING" });
+            }
+          });
+        });
+      })
       .catch(() => {});
   });
 }
