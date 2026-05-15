@@ -1342,37 +1342,100 @@ function initAboxWhenVisible() {
 }
 
 /* ────────────────────────────────────────────────────────────────────
- * Performance auto-fallback system
+ * Performance auto-fallback system (NUCLEAR mode)
  *
- * Two-stage detection ensures the page works even on broken Chrome installs:
+ * Detects machines where rendering is severely degraded and progressively
+ * strips features until the page is responsive. Three escalation levels:
  *
- *   Stage 1 (page-load):
- *     Probe WebGL for the actual GPU vendor/renderer string. If Chrome
- *     is using SwiftShader (software renderer because hardware accel is
- *     broken/disabled), or any other software fallback, immediately
- *     engage `.perf-mode` on <html>. CSS strips heavy effects.
+ *   Level 0: normal (full visual fidelity)
+ *   Level 1: .perf-mode  — strip animations + backdrop-filter
+ *   Level 2: .lite-mode  — dispose Three.js, remove Spline from DOM,
+ *                          hide all non-essential decorations
  *
- *   Stage 2 (continuous):
- *     Monitor frame rate. If sustained <30fps for 2 seconds, engage
- *     `.perf-mode` regardless of GPU. Recovers automatically if fps
- *     comes back >55 for 4 seconds.
+ * Triggers:
+ *   • WebGL software-renderer detected (SwiftShader)     → Level 1
+ *   • Sustained <45fps for 1s                            → Level 1
+ *   • Sustained <20fps for 1.5s OR in perf-mode <30fps  → Level 2 (NUCLEAR)
  *
- * .perf-mode CSS class (in site.css) strips ALL animations, backdrop-
- * filter, will-change, and large box-shadows — guarantees the site
- * stays usable even on the slowest Chrome installs.
+ * Manual overrides (URL params):
+ *   ?perf  — force Level 1 immediately
+ *   ?lite  — force Level 2 immediately
+ *
+ * Visible indicator in bottom-left corner (dot color shows current level).
  * ──────────────────────────────────────────────────────────────────── */
 (function perfAutoFallback() {
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
-  function engagePerfMode(reason) {
-    if (document.documentElement.classList.contains("perf-mode")) return;
-    document.documentElement.classList.add("perf-mode");
-    try { console.info("[astarter] perf-mode engaged:", reason); } catch (_) {}
+  const url = new URL(window.location.href);
+  const forcePerf = url.searchParams.has("perf");
+  const forceLite = url.searchParams.has("lite");
+  let level = 0;
+  let lockedReason = ""; // set when Stage-1 detection forces a level
+
+  function setLevel(newLevel, reason) {
+    if (newLevel === level) return;
+    level = newLevel;
+    document.documentElement.classList.toggle("perf-mode", level >= 1);
+    document.documentElement.classList.toggle("lite-mode", level >= 2);
+    try { console.info("[astarter] perf level=" + level + " (" + reason + ")"); } catch (_) {}
+    updateIndicator();
+    if (level >= 2) {
+      /* NUCLEAR: actually dispose Three.js + remove Spline from DOM.
+       * .lite-mode CSS hides them visually; this frees the GPU + main
+       * thread resources they were still consuming. */
+      try {
+        if (typeof window.__disposeAbox === "function") window.__disposeAbox();
+        const spline = document.getElementById("nodes-spline-viewer");
+        if (spline && spline.parentNode) spline.parentNode.removeChild(spline);
+        /* Also pause any remaining videos */
+        document.querySelectorAll("video").forEach((v) => { try { v.pause(); v.src = ""; v.removeAttribute("src"); v.load(); } catch (_) {} });
+      } catch (e) {
+        try { console.warn("[astarter] lite-mode cleanup error:", e); } catch (_) {}
+      }
+    }
   }
-  function releasePerfMode() {
-    if (!document.documentElement.classList.contains("perf-mode")) return;
-    document.documentElement.classList.remove("perf-mode");
-    try { console.info("[astarter] perf-mode released"); } catch (_) {}
+
+  /* Small indicator dot bottom-left so the user/dev can see if perf-mode
+   * is active. Click to manually escalate to the next level. */
+  let indicator = null;
+  function updateIndicator() {
+    if (!indicator) return;
+    const colors = ["transparent", "#fc0", "#f33"];
+    const labels = ["", " PERF", " LITE"];
+    indicator.style.background = colors[level];
+    indicator.textContent = labels[level];
+  }
+  function buildIndicator() {
+    indicator = document.createElement("div");
+    indicator.style.cssText =
+      "position:fixed;bottom:10px;left:10px;z-index:99998;" +
+      "padding:3px 8px;font:bold 11px/1 monospace;color:#000;" +
+      "border-radius:99px;pointer-events:auto;user-select:none;" +
+      "cursor:pointer;opacity:.7;";
+    indicator.title = "click to cycle perf level";
+    indicator.addEventListener("click", () => {
+      const next = (level + 1) % 3;
+      lockedReason = "manual";
+      setLevel(next, "manual click");
+    });
+    document.body.appendChild(indicator);
+    updateIndicator();
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", buildIndicator);
+  } else {
+    buildIndicator();
+  }
+
+  /* Manual URL override (highest priority) */
+  if (forceLite) {
+    lockedReason = "?lite param";
+    setLevel(2, lockedReason);
+    return; /* no need for auto-detection */
+  }
+  if (forcePerf) {
+    lockedReason = "?perf param";
+    setLevel(1, lockedReason);
   }
 
   /* Stage 1: probe WebGL renderer for software-fallback detection */
@@ -1385,8 +1448,6 @@ function initAboxWhenVisible() {
       const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : "";
       const vendor = dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : "";
       const combined = String(renderer + " " + vendor);
-      /* Known software-renderer signatures (Chrome falls back to these when
-       * hardware acceleration is broken/disabled) */
       if (/(SwiftShader|llvmpipe|Software|ANGLE\s*\(Software)/i.test(combined)) {
         return "software:" + renderer;
       }
@@ -1395,13 +1456,19 @@ function initAboxWhenVisible() {
       return null;
     }
   }
-  const swReason = detectSoftwareRenderer();
-  if (swReason) engagePerfMode(swReason);
+  if (!forcePerf && !forceLite) {
+    const swReason = detectSoftwareRenderer();
+    if (swReason) {
+      lockedReason = swReason;
+      setLevel(1, swReason);
+    }
+  }
 
-  /* Stage 2: continuous fps monitoring */
+  /* Stage 2: continuous fps monitoring with escalation */
   let frames = 0;
   let lastSample = performance.now();
   let lowFpsStart = 0;
+  let criticalFpsStart = 0;
   let highFpsStart = 0;
   function tick(now) {
     frames++;
@@ -1409,17 +1476,32 @@ function initAboxWhenVisible() {
       const fps = (frames * 1000) / (now - lastSample);
       frames = 0;
       lastSample = now;
-      if (fps < 30) {
+      /* CRITICAL: <20fps → escalate to LITE mode after 1.5s */
+      if (fps < 20) {
+        if (!criticalFpsStart) criticalFpsStart = now;
+        else if (now - criticalFpsStart > 1500) setLevel(2, "fps<20 critical");
+        lowFpsStart = 0;
+        highFpsStart = 0;
+      }
+      /* DEGRADED: <45fps → engage PERF mode after 1s */
+      else if (fps < 45) {
         if (!lowFpsStart) lowFpsStart = now;
-        else if (now - lowFpsStart > 2000) engagePerfMode("fps<30 sustained");
+        else if (now - lowFpsStart > 1000 && level === 0) setLevel(1, "fps<45 sustained");
+        /* Already in perf-mode and still <30 → escalate to LITE */
+        if (level === 1 && fps < 30 && now - lowFpsStart > 2000) {
+          setLevel(2, "fps<30 in perf-mode");
+        }
+        criticalFpsStart = 0;
         highFpsStart = 0;
-      } else if (fps > 55) {
+      }
+      /* RECOVERED: >55fps → release (only if not locked by Stage 1 or URL) */
+      else if (fps > 55) {
         if (!highFpsStart) highFpsStart = now;
-        else if (now - highFpsStart > 4000 && !swReason) releasePerfMode();
+        else if (now - highFpsStart > 4000 && level > 0 && !lockedReason) {
+          setLevel(0, "recovered");
+        }
         lowFpsStart = 0;
-      } else {
-        lowFpsStart = 0;
-        highFpsStart = 0;
+        criticalFpsStart = 0;
       }
     }
     requestAnimationFrame(tick);

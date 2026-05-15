@@ -161,6 +161,55 @@ html.perf-mode .nodes__visual {
   visibility: hidden;
 }
 
+/* ────────────────────────────────────────────────────────────────────
+ * .lite-mode — NUCLEAR fallback for catastrophic lag (<20 fps)
+ *
+ * Layered on top of .perf-mode (both classes are set together).
+ * JS has already disposed Three.js + removed Spline from DOM by the
+ * time this CSS applies. This rule hides every decorative element
+ * that's even remotely expensive — leaves only text + clean layout.
+ *
+ * Triggers: sustained <20 fps, or ?lite URL param, or click on the
+ * corner indicator twice.
+ * ──────────────────────────────────────────────────────────────────── */
+html.lite-mode .hero::after,
+html.lite-mode .hero::before {
+  display: none !important;
+}
+html.lite-mode .hero {
+  background: linear-gradient(180deg, #0a0420 0%, #040404 100%) !important;
+}
+html.lite-mode #abox-canvas-wrap,
+html.lite-mode .nodes__visual,
+html.lite-mode .abox__dots,
+html.lite-mode .gateway-core__decor,
+html.lite-mode .gateway-core__overlay,
+html.lite-mode .gateway-core__circuit {
+  display: none !important;
+}
+html.lite-mode .gateway-card {
+  background: #0d0d0d !important;
+}
+html.lite-mode .gateway-core {
+  border: 1px solid rgba(111, 0, 255, 0.4) !important;
+  box-shadow: none !important;
+}
+html.lite-mode .partner-marquee__rows::before,
+html.lite-mode .partner-marquee__rows::after {
+  display: none !important;
+}
+html.lite-mode .news-card,
+html.lite-mode .gateway-card,
+html.lite-mode .roadmap-item {
+  /* Strip the .reveal staging — content always visible (no animation) */
+  opacity: 1 !important;
+  transform: none !important;
+}
+html.lite-mode * {
+  /* Disable text-shadow on all elements — text-shadow is a paint cost */
+  text-shadow: none !important;
+}
+
 body {
   margin: 0;
   min-width: 320px;
