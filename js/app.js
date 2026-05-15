@@ -163,12 +163,12 @@ const BLOG = [
 ];
 
 const TOKEN_SEGMENTS = [
-  { name: "Staking Ecosystem", sub: "Staking ecosystem allocation", pct: 42, amt: "420,000,000", color: "rgb(32, 15, 87)" },
-  { name: "Ecosystem Construction", sub: "Ecosystem development allocation", pct: 38, amt: "380,000,000", color: "rgb(90, 90, 191)" },
-  { name: "Market Value Management", sub: "Market & treasury management", pct: 10, amt: "100,000,000", color: "rgb(224, 64, 251)" },
-  { name: "Investment & Research", sub: "Investment research allocation", pct: 5, amt: "50,000,000", color: "rgb(191, 127, 255)" },
-  { name: "Node Airdrop", sub: "Node airdrop allocation", pct: 4, amt: "40,000,000", color: "rgb(0, 194, 255)" },
-  { name: "Community Incentives", sub: "Community incentive allocation", pct: 1, amt: "10,000,000", color: "rgb(93, 255, 230)" },
+  { name: "Staking Ecosystem", sub: "Staking ecosystem allocation", pct: 42, amt: "420,000,000", color: "#6f00ff" },
+  { name: "Ecosystem Construction", sub: "Ecosystem development allocation", pct: 38, amt: "380,000,000", color: "#9d5cff" },
+  { name: "Market Value Management", sub: "Market & treasury management", pct: 10, amt: "100,000,000", color: "#e040fb" },
+  { name: "Investment & Research", sub: "Investment research allocation", pct: 5, amt: "50,000,000", color: "#bf7fff" },
+  { name: "Node Airdrop", sub: "Node airdrop allocation", pct: 4, amt: "40,000,000", color: "#00c2ff" },
+  { name: "Community Incentives", sub: "Community incentive allocation", pct: 1, amt: "10,000,000", color: "#5dffe6" },
 ];
 
 /* ── Shared rAF-throttled scroll dispatcher with READ/WRITE phases ──
