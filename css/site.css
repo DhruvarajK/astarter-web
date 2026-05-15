@@ -110,6 +110,57 @@ html {
   }
 }
 
+/* ────────────────────────────────────────────────────────────────────
+ * .perf-mode — automatic ultra-light fallback
+ *
+ * Engaged by JS when:
+ *   • WebGL detected as SwiftShader / software renderer (= Chrome hardware
+ *     accel is broken or disabled on this machine), OR
+ *   • Sustained <30 fps for 2 seconds during normal use
+ *
+ * Strips every GPU-expensive effect so the page stays usable on the
+ * slowest machines. Visual fidelity drops slightly (no animations, no
+ * blur), but the page is responsive instead of stuttering at 5-10 fps.
+ *
+ * The user's OS-level prefers-reduced-motion preference is honored above;
+ * this rule is for involuntary perf collapse on the machine side.
+ * ──────────────────────────────────────────────────────────────────── */
+html.perf-mode *,
+html.perf-mode *::before,
+html.perf-mode *::after {
+  animation: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+html.perf-mode .site-nav,
+html.perf-mode .site-nav--scrolled {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(4, 4, 4, 0.95) !important;
+}
+html.perf-mode .partner-marquee__track--left,
+html.perf-mode .partner-marquee__track--right {
+  animation: none !important;
+  transform: none !important;
+}
+html.perf-mode .partner-marquee__viewport {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+html.perf-mode .hero::after {
+  animation: none !important;
+  transform: none !important;
+}
+html.perf-mode .gateway-core--active {
+  box-shadow: 0 0 24px rgba(111, 0, 255, 0.4) !important;
+}
+html.perf-mode #abox-canvas-wrap,
+html.perf-mode .nodes__visual {
+  /* Hide the 3D scenes entirely — they're the heaviest elements and
+   * pointless to keep alive on software-rendered Chrome */
+  visibility: hidden;
+}
+
 body {
   margin: 0;
   min-width: 320px;

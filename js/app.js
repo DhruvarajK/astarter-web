@@ -1341,6 +1341,92 @@ function initAboxWhenVisible() {
   io.observe(anchor);
 }
 
+/* ────────────────────────────────────────────────────────────────────
+ * Performance auto-fallback system
+ *
+ * Two-stage detection ensures the page works even on broken Chrome installs:
+ *
+ *   Stage 1 (page-load):
+ *     Probe WebGL for the actual GPU vendor/renderer string. If Chrome
+ *     is using SwiftShader (software renderer because hardware accel is
+ *     broken/disabled), or any other software fallback, immediately
+ *     engage `.perf-mode` on <html>. CSS strips heavy effects.
+ *
+ *   Stage 2 (continuous):
+ *     Monitor frame rate. If sustained <30fps for 2 seconds, engage
+ *     `.perf-mode` regardless of GPU. Recovers automatically if fps
+ *     comes back >55 for 4 seconds.
+ *
+ * .perf-mode CSS class (in site.css) strips ALL animations, backdrop-
+ * filter, will-change, and large box-shadows — guarantees the site
+ * stays usable even on the slowest Chrome installs.
+ * ──────────────────────────────────────────────────────────────────── */
+(function perfAutoFallback() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+
+  function engagePerfMode(reason) {
+    if (document.documentElement.classList.contains("perf-mode")) return;
+    document.documentElement.classList.add("perf-mode");
+    try { console.info("[astarter] perf-mode engaged:", reason); } catch (_) {}
+  }
+  function releasePerfMode() {
+    if (!document.documentElement.classList.contains("perf-mode")) return;
+    document.documentElement.classList.remove("perf-mode");
+    try { console.info("[astarter] perf-mode released"); } catch (_) {}
+  }
+
+  /* Stage 1: probe WebGL renderer for software-fallback detection */
+  function detectSoftwareRenderer() {
+    try {
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      if (!gl) return "no-webgl";
+      const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+      const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : "";
+      const vendor = dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : "";
+      const combined = String(renderer + " " + vendor);
+      /* Known software-renderer signatures (Chrome falls back to these when
+       * hardware acceleration is broken/disabled) */
+      if (/(SwiftShader|llvmpipe|Software|ANGLE\s*\(Software)/i.test(combined)) {
+        return "software:" + renderer;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+  const swReason = detectSoftwareRenderer();
+  if (swReason) engagePerfMode(swReason);
+
+  /* Stage 2: continuous fps monitoring */
+  let frames = 0;
+  let lastSample = performance.now();
+  let lowFpsStart = 0;
+  let highFpsStart = 0;
+  function tick(now) {
+    frames++;
+    if (now - lastSample >= 500) {
+      const fps = (frames * 1000) / (now - lastSample);
+      frames = 0;
+      lastSample = now;
+      if (fps < 30) {
+        if (!lowFpsStart) lowFpsStart = now;
+        else if (now - lowFpsStart > 2000) engagePerfMode("fps<30 sustained");
+        highFpsStart = 0;
+      } else if (fps > 55) {
+        if (!highFpsStart) highFpsStart = now;
+        else if (now - highFpsStart > 4000 && !swReason) releasePerfMode();
+        lowFpsStart = 0;
+      } else {
+        lowFpsStart = 0;
+        highFpsStart = 0;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
 /* ── FPS counter HUD (diagnostic tool) ──
  * Activate by adding `?fps` to the URL: http://localhost:8080/?fps
  * Shows real-time FPS in top-right corner. Color-coded:

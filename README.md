@@ -92,6 +92,34 @@ The included `cached_server.py` is a drop-in replacement for `python -m http.ser
 
 For an FPS overlay during scroll, append `?fps` to any URL: `http://localhost:8080/?fps`.
 
+## Performance auto-fallback
+
+The site auto-detects two conditions that cause lag and engages `.perf-mode` automatically:
+
+1. **WebGL software rendering detected** (Chrome falls back to SwiftShader when hardware acceleration is broken/disabled) — engaged on page load
+2. **Sustained < 30 fps for 2 seconds** — engaged dynamically; auto-released when FPS recovers > 55 fps for 4 seconds
+
+In `.perf-mode`:
+- All CSS animations + transitions disabled
+- Backdrop-filter blur disabled (nav goes opaque)
+- Partner marquee freezes (no scroll-animation)
+- Hero Ken Burns paused
+- 3D canvases (Three.js + Spline) hidden via `visibility: hidden`
+
+This guarantees the page remains responsive even on machines where Chrome's hardware acceleration is broken.
+
+## Troubleshooting Chrome-specific lag
+
+If users report lag in Chrome but not Brave / Firefox / Edge, the cause is almost always **broken hardware acceleration on their Chrome install**. Have them check:
+
+1. `chrome://gpu/` → look at **"Graphics Feature Status"**. Every line should say "Hardware accelerated". If any says "Software only" or is yellow/red, hardware acceleration is degraded.
+2. `chrome://settings/system` → "Use hardware acceleration when available" → should be **ON**. Toggle it off + on + restart Chrome.
+3. Windows: **Settings → Display → Graphics → Chrome → High Performance** GPU (not Integrated)
+4. Test in **Incognito mode with all extensions disabled** — confirms whether extensions (Grammarly, ad blockers) are the cause
+5. Update GPU drivers
+
+The code-side optimizations are at the theoretical maximum; further smoothness requires fixing the user's Chrome environment.
+
 ---
 
 ## License
