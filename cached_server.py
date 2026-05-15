@@ -77,11 +77,18 @@ class CachedHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 
+class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    """Threaded variant — each request runs on its own thread.
+    A single client aborting mid-transfer (WinError 10053) can no longer
+    wedge the request queue and stall every other resource."""
+    daemon_threads = True       # threads exit when main process does
+    allow_reuse_address = True  # restart cleanly after Ctrl+C
+
+
 def run(port=8080):
     os.chdir(Path(__file__).parent)
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", port), CachedHandler) as httpd:
-        print(f"Astarter cached server running at http://localhost:{port}/")
+    with ThreadingHTTPServer(("", port), CachedHandler) as httpd:
+        print(f"Astarter cached server (threaded) running at http://localhost:{port}/")
         print("HTTP cache headers active — repeat visits will be near-instant.")
         print("Press Ctrl+C to stop.")
         try:
