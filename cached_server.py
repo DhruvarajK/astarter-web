@@ -88,11 +88,16 @@ class CachedHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header(
                 "Content-Security-Policy",
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; "
+                # 'wasm-unsafe-eval' lets DRACO (compressed glTF) decoder run —
+                # without it, ABOX 3D model can't decode and the section renders empty.
+                "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; "
+                # Spline viewer + DRACO both spawn Web Workers; blob: covers inline-worker URLs.
+                "worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; "
                 "style-src 'self' 'unsafe-inline'; "
-                "img-src 'self' data: blob:; "
+                "img-src 'self' data: blob: https://cdn.jsdelivr.net; "
                 "font-src 'self'; "
-                "connect-src 'self' https://prod.spline.design https://dl.polyhaven.org https://cdn.jsdelivr.net https://unpkg.com; "
+                # blob: is needed in connect-src for Three.js binary texture/buffer XHRs.
+                "connect-src 'self' blob: https://prod.spline.design https://dl.polyhaven.org https://cdn.jsdelivr.net https://unpkg.com; "
                 "frame-ancestors 'none'; "
                 "base-uri 'self'; "
                 "form-action 'self'; "

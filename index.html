@@ -52,7 +52,7 @@
          allowed for the small handful of style="" attrs in the legend.
          If a XSS does sneak in, this policy blocks the attacker from
          loading arbitrary remote scripts or exfiltrating to their server. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://prod.spline.design https://dl.polyhaven.org https://cdn.jsdelivr.net https://unpkg.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.jsdelivr.net; font-src 'self'; connect-src 'self' blob: https://prod.spline.design https://dl.polyhaven.org https://cdn.jsdelivr.net https://unpkg.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests" />
 
     <!-- ── PWA manifest ── -->
     <link rel="manifest" href="manifest.webmanifest" />
@@ -113,7 +113,7 @@
     <link rel="preload" href="assets/fonts/Poppins-700.ttf" as="font" type="font/ttf" crossorigin />
 
     <!-- ── Critical styles ── -->
-    <link rel="stylesheet" href="css/site.css?v=3.1" />
+    <link rel="stylesheet" href="css/site.css?v=3.2" />
 
     <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ── -->
     <link rel="preload" href="assets/hero-poster.webp" as="image" type="image/webp" />
@@ -766,7 +766,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js" integrity="sha384-TNRcLasZnnfIJJskDY5XlrfmsKTjBSy98MtyLuX+3rQWRbpSQvtFIdikNpcOh3SN" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" integrity="sha384-fljlqkjWlmSFjkESkQvm77heIZpoWmXEOzlCA7kOpGUH+95Zk0yGfQieWM2q136E" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js" integrity="sha384-brr1wFCScwAi+SbB5QEzZ6kd5yjKCrFmRuUqxbw0XQSElYZz7XPg9+lVO8jdV0yX" crossorigin="anonymous"></script>
-    <script defer src="js/app.js?v=3.1"></script>
+    <script defer src="js/app.js?v=3.2"></script>
 
     <!-- ── JSON-LD structured data ── -->
     <script type="application/ld+json">
