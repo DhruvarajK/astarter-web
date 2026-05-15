@@ -1380,19 +1380,78 @@ function initAboxWhenVisible() {
     try { console.info("[astarter] perf level=" + level + " (" + reason + ")"); } catch (_) {}
     updateIndicator();
     if (level >= 2) {
-      /* NUCLEAR: actually dispose Three.js + remove Spline from DOM.
-       * .lite-mode CSS hides them visually; this frees the GPU + main
-       * thread resources they were still consuming. */
+      /* NUCLEAR: dispose everything heavy and physically remove DOM
+       * elements (not just hide). At <5fps the DOM tree itself is
+       * expensive — Chrome's main thread is so slow that even hidden
+       * elements cost it cycles to skip.
+       *
+       * After this, the DOM size drops from ~600 nodes to ~150. */
       try {
         if (typeof window.__disposeAbox === "function") window.__disposeAbox();
         const spline = document.getElementById("nodes-spline-viewer");
         if (spline && spline.parentNode) spline.parentNode.removeChild(spline);
-        /* Also pause any remaining videos */
-        document.querySelectorAll("video").forEach((v) => { try { v.pause(); v.src = ""; v.removeAttribute("src"); v.load(); } catch (_) {} });
+
+        /* Drop the partner marquee carousels entirely — they had 152 cards */
+        document.querySelectorAll("#partners-track-1, #partners-track-2")
+          .forEach((track) => { while (track.firstChild) track.removeChild(track.firstChild); });
+
+        /* Drop blog/news carousel cards — keeps the heading visible */
+        const blogTrack = document.getElementById("blog-track-desktop");
+        if (blogTrack) while (blogTrack.firstChild) blogTrack.removeChild(blogTrack.firstChild);
+        const blogTrackMobile = document.getElementById("blog-track-mobile");
+        if (blogTrackMobile) while (blogTrackMobile.firstChild) blogTrackMobile.removeChild(blogTrackMobile.firstChild);
+
+        /* Story section: collapse the 35 word spans into plain text */
+        const storyText = document.querySelector(".story__text");
+        if (storyText) {
+          const text = storyText.textContent.trim();
+          storyText.innerHTML = "";
+          storyText.textContent = text;
+        }
+
+        /* Tokenomics: remove the SVG donut (heavy paint) */
+        const pie = document.getElementById("tokenomics-pie");
+        if (pie) while (pie.firstChild) pie.removeChild(pie.firstChild);
+
+        /* Pause + null all video srcs */
+        document.querySelectorAll("video").forEach((v) => {
+          try { v.pause(); v.src = ""; v.removeAttribute("src"); v.load(); } catch (_) {}
+        });
+
+        /* Show the banner explaining the situation (auto-engaged case only) */
+        if (lockedReason !== "manual" && !document.getElementById("perf-banner")) {
+          buildBanner();
+        }
       } catch (e) {
         try { console.warn("[astarter] lite-mode cleanup error:", e); } catch (_) {}
       }
     }
+  }
+
+  /* Top-of-page banner shown when lite-mode auto-engages — politely
+   * informs the user their browser has performance issues and links
+   * to fixes. Dismissible. */
+  function buildBanner() {
+    const banner = document.createElement("div");
+    banner.id = "perf-banner";
+    banner.style.cssText =
+      "position:fixed;top:0;left:0;right:0;z-index:99997;" +
+      "padding:10px 16px;font:500 13px/1.5 system-ui,sans-serif;" +
+      "background:#1a0a40;color:#fff;border-bottom:1px solid #6f00ff;" +
+      "display:flex;align-items:center;gap:12px;flex-wrap:wrap;";
+    banner.innerHTML =
+      '<span style="flex:1;min-width:200px">' +
+        '⚡ Your browser is rendering this page in low-performance mode. ' +
+        'For full quality, check ' +
+        '<a href="chrome://gpu/" target="_blank" style="color:#c4b5fd;text-decoration:underline">chrome://gpu/</a> ' +
+        'or try in Incognito (Ctrl+Shift+N) with extensions disabled.' +
+      '</span>' +
+      '<button id="perf-banner-close" style="background:transparent;border:1px solid rgba(255,255,255,.3);' +
+        'color:#fff;padding:4px 12px;border-radius:4px;cursor:pointer;font:inherit">Dismiss</button>';
+    document.body.appendChild(banner);
+    document.getElementById("perf-banner-close").addEventListener("click", () => {
+      banner.remove();
+    });
   }
 
   /* Small indicator dot bottom-left so the user/dev can see if perf-mode
