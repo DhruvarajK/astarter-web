@@ -949,7 +949,8 @@ a {
   margin: 0 auto 64px;
   z-index: 2;
   background: var(--bg);
-  backdrop-filter: blur(4px);
+  /* backdrop-filter removed — element has a solid bg, so there was
+   * nothing behind it to blur. Was wasting GPU work every frame. */
   border: 1px solid rgba(255, 255, 255, 0.25);
   transition: border-color 0.45s, box-shadow 0.45s, background 0.45s;
   overflow: visible;
