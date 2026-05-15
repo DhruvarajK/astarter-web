@@ -778,12 +778,10 @@ a {
 /* ---- ABOX ---- */
 .abox-anchor {
   position: relative;
-  /* Matches production (45.207.194.194) at 550vh.
-   * More scroll distance = slower camera transitions between the 6 shots
-   * = smoother animation. Tried 280vh and 400vh earlier; both made the
-   * camera lerp visibly jerky and the close-up shots felt zoomed-in too
-   * fast. Mobile override stays at 260vh below. */
-  height: 550vh;
+  /* Was 550vh originally → 280vh (too fast to read 4 panels of copy)
+   * → 400vh now. ~100vh per panel = comfortable reading time AND smooth
+   * lerping between the 6 camera shots. Mobile = 260vh below. */
+  height: 400vh;
 }
 .abox {
   position: sticky;
@@ -825,11 +823,7 @@ a {
   position: relative;
   background: #040404;
   overflow: hidden;
-  /* NOTE: `contain: strict` was here — removed because it includes
-   * `size` containment, which broke the WebGL canvas's intrinsic
-   * sizing and made the ABOX model render at the wrong scale (looked
-   * like an over-zoomed wide rectangle). Production has no contain
-   * declaration here. */
+  contain: strict;
 }
 .abox__dots {
   display: none;
@@ -1248,10 +1242,12 @@ a {
   position: relative;
   background: #000000;
   overflow: hidden;
-  /* NOTE: `contain: strict` was removed. It includes `size` containment
-   * which interferes with the Spline viewer's internal canvas sizing
-   * (same root cause as the ABOX rendering-too-big bug). Production has
-   * no contain declaration on this element. */
+  /* content-visibility removed — was redundant with contain:strict AND
+   * caused a paint hitch on reverse scroll (the "skipped → render"
+   * transition). Spline is already paused via visibility:hidden in JS
+   * when far offscreen; contain:strict isolates its rendering from the
+   * rest of the page. */
+  contain: strict;
 }
 .nodes__visual .nodes__spline,
 .nodes__visual spline-viewer {
@@ -2278,10 +2274,7 @@ a {
   }
 
   /* Sticky sections: shorter than desktop, but enough to read the 4
-   * ABOX panels of copy at mobile reading pace.
-   * Note: production keeps .abox-anchor at 550vh on every breakpoint —
-   * we keep the mobile reduction here because mobile readers scroll
-   * with a thumb, not a wheel, and 550vh is exhausting on phones. */
+   * ABOX panels of copy at mobile reading pace. */
   .story { height: 100vh; }
   .abox-anchor { height: 280vh; }
 
