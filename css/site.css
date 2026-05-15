@@ -1364,11 +1364,13 @@ a {
 .partner-marquee {
   background: var(--bg);
   padding: 100px 0;
-  /* Removed content-visibility — 76 partner images would re-paint on every
-   * reverse-scroll back through this section. The JS IntersectionObserver
-   * already pauses the animation when off-screen (frees animation timer);
-   * the image compositor layers stay cached for smooth re-entry. */
-  contain: layout style;
+  /* contain: layout style paint — strict compositor isolation.
+   * The marquee section has 152 image elements + 2 perpetually-animating
+   * tracks. Without `paint` containment, Chrome was painting their tiles
+   * during page scroll (the "Trusted by the Best 10 fps" lag root cause).
+   * The JS pauses the marquee during active scroll; this CSS tells Chrome
+   * NOT to paint marquee tiles outside the section's bounds during scroll. */
+  contain: layout style paint;
 }
 .partner-marquee__head.reveal {
   text-align: center;
