@@ -12,7 +12,7 @@
  * auto-delete stale caches on activate.
  */
 
-const VERSION = "astarter-v3.5";
+const VERSION = "astarter-v3.6";
 const SHELL = `${VERSION}-shell`;   /* HTML, manifest, sw self */
 const STATIC = `${VERSION}-static`; /* JS, CSS */
 const MEDIA  = `${VERSION}-media`;  /* images, video, svg, fonts, 3D */
