@@ -696,55 +696,26 @@ function initPartners() {
 
   /* Pause animation AND remove compositor-layer promotion when offscreen.
    * `will-change` is moved onto a class that JS toggles, so when paused the
-   * browser can drop the GPU texture (frees memory). */
+   * browser can drop the GPU texture (frees memory).
+   *
+   * Note: previously this also paused during active scroll (Apple-Maps
+   * pattern) to prevent compositor-thread thrash. That was REMOVED — users
+   * want the marquee to scroll continuously as expected. The auto-perf-
+   * mode system (engages at <45 fps) handles severe-lag scenarios
+   * separately. */
   const section = document.querySelector(".partner-marquee");
   if (!section || typeof IntersectionObserver === "undefined") return;
   const tracks = section.querySelectorAll(".partner-marquee__track");
-
-  let _trackVisible = false; // viewport intersection state
-  function setRunningState() {
-    /* Marquee only runs when:
-     *   1. The section is visible in viewport, AND
-     *   2. User is NOT actively scrolling
-     * This frees the compositor thread during scroll, which is where the
-     * "Trusted by the Best 10 fps" lag came from — 152 partner image
-     * compositor tiles + active scroll-driven repaint were fighting for
-     * the same GPU bandwidth. */
-    const shouldRun = _trackVisible && !_userScrolling;
-    for (let i = 0; i < tracks.length; i++) {
-      tracks[i].style.animationPlayState = shouldRun ? "running" : "paused";
-      tracks[i].classList.toggle("is-active", shouldRun);
-    }
-  }
-
   new IntersectionObserver(
     (entries) => {
-      _trackVisible = entries[0] && entries[0].isIntersecting;
-      setRunningState();
+      const visible = entries[0] && entries[0].isIntersecting;
+      for (let i = 0; i < tracks.length; i++) {
+        tracks[i].style.animationPlayState = visible ? "running" : "paused";
+        tracks[i].classList.toggle("is-active", visible);
+      }
     },
     { rootMargin: "100px 0px" }
   ).observe(section);
-
-  /* Pause the marquee during active scroll, resume 400ms after the user
-   * stops. This is the same technique Apple Maps uses for tile loading
-   * during pan. */
-  let _userScrolling = false;
-  let _scrollPauseTimer = 0;
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!_userScrolling) {
-        _userScrolling = true;
-        setRunningState();
-      }
-      clearTimeout(_scrollPauseTimer);
-      _scrollPauseTimer = setTimeout(() => {
-        _userScrolling = false;
-        setRunningState();
-      }, 400);
-    },
-    { passive: true }
-  );
 }
 
 function buildBlogCarousel() {
