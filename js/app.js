@@ -1527,7 +1527,22 @@ function initAboxWhenVisible() {
     }
   }
 
-  /* Stage 2: continuous fps monitoring with escalation */
+  /* Stage 2: continuous fps monitoring with escalation.
+   *
+   * Important guard rails — without these, the auto-fallback was a FOOTGUN
+   * that engaged lite-mode during the natural FPS dip of initial page load
+   * (script parse + first paint + image decode), then PHYSICALLY REMOVED
+   * the Spline viewer and Three.js canvases. After FPS recovered the level
+   * was set back to 0 but the DOM elements were gone — so users saw empty
+   * black boxes where the 3D scenes should be.
+   *
+   *  1. WARMUP_MS: ignore the first 3s after page load — that's when the
+   *     browser is parsing scripts and doing first paint, not steady-state.
+   *  2. Never go DIRECTLY from level 0 → 2. Must pass through 1 first.
+   *  3. Lite-mode now requires fps<15 sustained 3s while ALREADY in perf-
+   *     mode (was: fps<20 sustained 1.5s from any level). */
+  const WARMUP_MS = 3000;
+  const PAGE_LOAD_AT = performance.now();
   let frames = 0;
   let lastSample = performance.now();
   let lowFpsStart = 0;
@@ -1539,25 +1554,36 @@ function initAboxWhenVisible() {
       const fps = (frames * 1000) / (now - lastSample);
       frames = 0;
       lastSample = now;
-      /* CRITICAL: <20fps → escalate to LITE mode after 1.5s */
-      if (fps < 20) {
+
+      /* WARMUP: ignore samples taken before the browser has settled.
+       * The first 3s after load are dominated by parse/paint costs that
+       * have nothing to do with steady-state rendering. */
+      if (now - PAGE_LOAD_AT < WARMUP_MS) {
+        requestAnimationFrame(tick);
+        return;
+      }
+
+      /* CRITICAL: <15fps WHILE ALREADY in perf-mode → escalate to LITE
+       * (after 3s sustained). Direct 0→2 jumps are gone — you must pass
+       * through perf-mode first. */
+      if (fps < 15 && level >= 1) {
         if (!criticalFpsStart) criticalFpsStart = now;
-        else if (now - criticalFpsStart > 1500) setLevel(2, "fps<20 critical");
+        else if (now - criticalFpsStart > 3000) setLevel(2, "fps<15 in perf-mode");
         lowFpsStart = 0;
         highFpsStart = 0;
       }
-      /* DEGRADED: <45fps → engage PERF mode after 1s */
+      /* DEGRADED: <45fps → engage PERF mode after 1s.
+       * Perf-mode is cheap and fully reversible (only adds a class). */
       else if (fps < 45) {
         if (!lowFpsStart) lowFpsStart = now;
         else if (now - lowFpsStart > 1000 && level === 0) setLevel(1, "fps<45 sustained");
-        /* Already in perf-mode and still <30 → escalate to LITE */
-        if (level === 1 && fps < 30 && now - lowFpsStart > 2000) {
-          setLevel(2, "fps<30 in perf-mode");
-        }
         criticalFpsStart = 0;
         highFpsStart = 0;
       }
-      /* RECOVERED: >55fps → release (only if not locked by Stage 1 or URL) */
+      /* RECOVERED: >55fps → release (only if not locked by Stage 1 or URL).
+       * NB: lite-mode is one-way (it physically removed DOM); recovering
+       * just clears the class, but the 3D content is permanently gone for
+       * this page load. Reload to restore. */
       else if (fps > 55) {
         if (!highFpsStart) highFpsStart = now;
         else if (now - highFpsStart > 4000 && level > 0 && !lockedReason) {
