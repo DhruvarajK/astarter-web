@@ -12,7 +12,10 @@
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#040404" />
 
-    <!-- ── Favicon ── -->
+    <!-- ── Favicon ──
+         SVG favicon is rendered crisply at every size (16, 32, 48, 192…).
+         The PNG fallback below is for older browsers that don't support SVG icons. -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
     <link rel="icon" type="image/png" href="assets/logo-DKIUXeE4.png" />
     <link rel="apple-touch-icon" href="assets/logo-DKIUXeE4.png" />
 
@@ -101,7 +104,7 @@
     <link rel="preload" href="assets/fonts/Poppins-700.ttf" as="font" type="font/ttf" crossorigin />
 
     <!-- ── Critical styles ── -->
-    <link rel="stylesheet" href="css/site.css?v=2.7" />
+    <link rel="stylesheet" href="css/site.css?v=2.8" />
 
     <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ── -->
     <link rel="preload" href="assets/hero-poster.webp" as="image" type="image/webp" />
@@ -746,7 +749,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
-    <script defer src="js/app.js?v=2.7"></script>
+    <script defer src="js/app.js?v=2.8"></script>
 
     <!-- ── JSON-LD structured data ── -->
     <script type="application/ld+json">

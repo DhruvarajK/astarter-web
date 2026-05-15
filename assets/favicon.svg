@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 56" role="img" aria-label="Astarter">
+  <defs>
+    <!-- Mask to cut the horizontal stripes into the O glyph -->
+    <mask id="astarter-stripes">
+      <rect width="96" height="56" fill="white"/>
+      <rect x="48" y="11" width="48" height="2.5" fill="black"/>
+      <rect x="48" y="19" width="48" height="2.5" fill="black"/>
+      <rect x="48" y="27" width="48" height="2.5" fill="black"/>
+      <rect x="48" y="35" width="48" height="2.5" fill="black"/>
+      <rect x="48" y="43" width="48" height="2.5" fill="black"/>
+    </mask>
+  </defs>
+  <!-- C: 3/4 ring opening to the right -->
+  <path fill="#6f00ff" d="M 44.78 16 A 24 24 0 1 0 44.78 40 L 33.53 33.5 A 11 11 0 1 1 33.53 22.5 Z"/>
+  <!-- O: striped circle -->
+  <circle cx="72" cy="28" r="24" fill="#6f00ff" mask="url(#astarter-stripes)"/>
+</svg>
