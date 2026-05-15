@@ -110,15 +110,39 @@ This guarantees the page remains responsive even on machines where Chrome's hard
 
 ## Troubleshooting Chrome-specific lag
 
-If users report lag in Chrome but not Brave / Firefox / Edge, the cause is almost always **broken hardware acceleration on their Chrome install**. Have them check:
+If users report lag in Chrome but not Brave / Firefox / Edge, the cause is almost always one of these — in this order of likelihood:
 
-1. `chrome://gpu/` → look at **"Graphics Feature Status"**. Every line should say "Hardware accelerated". If any says "Software only" or is yellow/red, hardware acceleration is degraded.
-2. `chrome://settings/system` → "Use hardware acceleration when available" → should be **ON**. Toggle it off + on + restart Chrome.
-3. Windows: **Settings → Display → Graphics → Chrome → High Performance** GPU (not Integrated)
-4. Test in **Incognito mode with all extensions disabled** — confirms whether extensions (Grammarly, ad blockers) are the cause
-5. Update GPU drivers
+### #1 — Wrong GPU selected (hybrid-GPU laptops)
+**Most common cause on AMD/NVIDIA hybrid-GPU laptops.** Chrome defaults to the integrated power-saving GPU; the discrete gaming GPU sits idle. Verify by opening `chrome://gpu/` and scrolling to the bottom — if `GPU0` (integrated, e.g. "AMD Radeon Graphics" / "Intel UHD") shows `*ACTIVE*` while `GPU1` (discrete, e.g. "RX 6800M" / "NVIDIA GeForce") does NOT, that's the issue.
 
-The code-side optimizations are at the theoretical maximum; further smoothness requires fixing the user's Chrome environment.
+**Fix (Windows):**
+1. Settings → System → Display → Graphics → Browse → add `C:\Program Files\Google\Chrome\Application\chrome.exe`
+2. Click the entry → Options → **High performance** → Save
+3. Fully close + reopen Chrome
+4. `chrome://gpu/` should now show the discrete GPU as `*ACTIVE*`
+
+This single fix typically takes a page from <10 fps to a locked 60 fps on hybrid-GPU laptops.
+
+### #2 — Hardware acceleration disabled/degraded
+`chrome://gpu/` → "Graphics Feature Status" — every line should say "Hardware accelerated". If any says "Software only" or is red, hardware acceleration is degraded. Toggle Chrome → Settings → System → "Use hardware acceleration when available" off + on + restart.
+
+### #3 — Heavy browser extension
+Test in **Incognito with all extensions disabled** at `http://your-site/?fps`. If FPS recovers, an extension is the culprit. Grammarly is the #1 reported offender (it calls `document.elementsFromPoint()` on every scroll). Disable extensions one-by-one to find it.
+
+### #4 — Stale GPU driver
+Update via the manufacturer (NVIDIA GeForce Experience / AMD Radeon Software / Intel Driver Support Assistant) — NOT via Windows Update.
+
+### Built-in auto-fallback
+
+The site has automatic graceful degradation built in. If FPS is sustained <45 for 1 second, `.perf-mode` engages (strips animations + backdrop-filter). If sustained <20 for 1.5 seconds, `.lite-mode` engages (disposes Three.js, removes Spline, strips DOM weight). A diagnostic banner appears explaining the situation. Force-engage for testing via URL params:
+
+```
+http://your-site/?perf    ← force perf-mode
+http://your-site/?lite    ← force lite-mode (most aggressive)
+http://your-site/?fps     ← show real-time FPS counter
+```
+
+The code-side optimizations are at the theoretical maximum; further smoothness requires fixing the user's Chrome environment per the steps above.
 
 ---
 
