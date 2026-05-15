@@ -1,0 +1,38 @@
+# ── Brand / partnership deliverables (separate ZIPs, not site source) ──
+logo-pack/
+partnership-banners/
+
+# ── Dev / build artifacts ──
+*.bak
+*.pyc
+__pycache__/
+.venv/
+venv/
+node_modules/
+.cache/
+dist/
+build/
+
+# ── Local dev outputs ──
+*.zip
+
+# ── OS junk ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE / editor ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Logs ──
+*.log
+*.log.*
+
+# ── Local-only / sensitive ──
+.env
+.env.local
+.env.*.local

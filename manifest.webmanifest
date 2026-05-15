@@ -1,0 +1,27 @@
+{
+  "name": "Astarter — Web4 AI DePIN Network",
+  "short_name": "Astarter",
+  "description": "Web4 DePIN AI-native Network powered by ENI. Infrastructure for the AI economy.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#040404",
+  "theme_color": "#6f00ff",
+  "lang": "en-US",
+  "categories": ["finance", "business", "technology"],
+  "icons": [
+    {
+      "src": "assets/logo-DKIUXeE4.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/logo-DKIUXeE4.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

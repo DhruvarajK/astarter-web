@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <script>window.ASTARTER_CONFIG = window.ASTARTER_CONFIG || {};</script>
+
+    <!-- ── Primary SEO ── -->
+    <title>Astarter — Web4 AI DePIN Infrastructure | ENI Network</title>
+    <meta name="description" content="Astarter is building Web4 DePIN AI-native infrastructure powered by ENI. Buy ABOX nodes, stake $AA tokens, and join the autonomous AI economy on Cardano." />
+    <link rel="canonical" href="https://astarter.io/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#040404" />
+
+    <!-- ── Favicon ── -->
+    <link rel="icon" type="image/png" href="assets/logo-DKIUXeE4.png" />
+    <link rel="apple-touch-icon" href="assets/logo-DKIUXeE4.png" />
+
+    <!-- ── Open Graph ── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://astarter.io/" />
+    <meta property="og:site_name" content="Astarter" />
+    <meta property="og:title" content="Astarter — Web4 AI DePIN Infrastructure" />
+    <meta property="og:description" content="Infrastructure for the AI Economy. Web4 DePIN AI-native Network powered by ENI. Buy ABOX nodes and stake $AA." />
+    <meta property="og:image" content="https://astarter.io/assets/hero-poster.webp" />
+    <meta property="og:image:width" content="1920" />
+    <meta property="og:image:height" content="1080" />
+    <meta property="og:image:alt" content="ASTARTER — Web4 AI DePIN network" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ── Twitter Card ── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@AstarterDefiHub" />
+    <meta name="twitter:creator" content="@AstarterDefiHub" />
+    <meta name="twitter:title" content="Astarter — Web4 AI DePIN Infrastructure" />
+    <meta name="twitter:description" content="Infrastructure for the AI Economy. Web4 DePIN AI-native Network powered by ENI." />
+    <meta name="twitter:image" content="https://astarter.io/assets/hero-poster.webp" />
+    <meta name="twitter:image:alt" content="ASTARTER hero" />
+
+    <!-- ── Security hardening (server should mirror these in real headers) ── -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()" />
+
+    <!-- ── PWA manifest ── -->
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <!-- ── Structured data: Organization + WebSite + Product (rich results) ── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://astarter.io/#organization",
+          "name": "Astarter",
+          "url": "https://astarter.io/",
+          "logo": "https://astarter.io/assets/logo-DKIUXeE4.png",
+          "description": "Web4 AI Agent DePIN Network. Infrastructure for the AI Economy.",
+          "sameAs": [
+            "https://x.com/AstarterDefiHub",
+            "https://t.me/AstarterDefiHubOfficial",
+            "https://discord.gg/astarter",
+            "https://medium.com/@AstarterDefiHub",
+            "https://www.youtube.com/c/astartertv"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "contact@astarter.io",
+            "contactType": "customer support"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://astarter.io/#website",
+          "url": "https://astarter.io/",
+          "name": "Astarter",
+          "publisher": { "@id": "https://astarter.io/#organization" },
+          "inLanguage": "en-US"
+        },
+        {
+          "@type": "Product",
+          "name": "ABOX",
+          "description": "Physical gateway to the Web4 AI network. Connects users to autonomous AI agents and decentralized infrastructure.",
+          "brand": { "@id": "https://astarter.io/#organization" },
+          "image": "https://astarter.io/assets/hero-poster.webp"
+        }
+      ]
+    }
+    </script>
+
+    <!-- ── Performance: connections (only kept for required externals) ── -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="dns-prefetch" href="https://prod.spline.design" />
+    <link rel="dns-prefetch" href="https://unpkg.com" />
+
+    <!-- ── Fonts: SELF-HOSTED via @font-face in site.css ──
+         (was Google Fonts + Typekit — those add ~200ms of 3rd-party
+         render-blocking in Brave because Shields scrutinize each request) -->
+    <link rel="preload" href="assets/fonts/Poppins-600.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="assets/fonts/Poppins-700.ttf" as="font" type="font/ttf" crossorigin />
+
+    <!-- ── Critical styles ── -->
+    <link rel="stylesheet" href="css/site.css" />
+
+    <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ── -->
+    <link rel="preload" href="assets/hero-poster.webp" as="image" type="image/webp" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+      <div class="site-nav__inner">
+        <a href="/" class="site-nav__brand">
+          <img
+            class="site-nav__logo-img"
+            src="assets/logo-DKIUXeE4.png"
+            alt=""
+            width="48"
+            height="48"
+            decoding="async"
+            aria-hidden="true"
+          />
+          <span class="site-nav__title">ASTARTER</span>
+        </a>
+        <ul class="site-nav__menu">
+          <li class="site-nav__item site-nav__item--has-sub">
+            <button type="button" class="site-nav__trigger" aria-expanded="false">
+              Education <span class="site-nav__chev" aria-hidden="true">▾</span>
+            </button>
+            <ul class="site-nav__sub">
+              <li><a href="https://astarter.gitbook.io/astarter" target="_blank" rel="noopener noreferrer">Docs</a></li>
+              <li><a href="https://docsend.com/view/wkwt6r7wvgmg3kmu" target="_blank" rel="noopener noreferrer">Deck</a></li>
+              <li><a href="https://astarter.gitbook.io/astarter-faq/" target="_blank" rel="noopener noreferrer">FAQs</a></li>
+            </ul>
+          </li>
+          <li class="site-nav__item site-nav__item--has-sub">
+            <button type="button" class="site-nav__trigger" aria-expanded="false">
+              Products <span class="site-nav__chev" aria-hidden="true">▾</span>
+            </button>
+            <ul class="site-nav__sub">
+              <li><a href="https://dex.astarter.io/" target="_blank" rel="noopener noreferrer">DEX V2.1 (Beta)</a></li>
+              <li><a href="https://astarter.typeform.com/IDOAPPLY" target="_blank" rel="noopener noreferrer">IDO Apply</a></li>
+            </ul>
+          </li>
+          <li class="site-nav__item site-nav__item--has-sub">
+            <button type="button" class="site-nav__trigger" aria-expanded="false">
+              ISPO <span class="site-nav__chev" aria-hidden="true">▾</span>
+            </button>
+            <ul class="site-nav__sub">
+              <li><a href="https://calculator.astarter.io/" target="_blank" rel="noopener noreferrer">ISPO Dashboard</a></li>
+              <li>
+                <a href="https://pool.pm/68edf81e0f10a4469191006506ca877460e7a9c5721e1c58709f3a22" target="_blank" rel="noopener noreferrer">Stake with AA1</a>
+              </li>
+              <li>
+                <a href="https://pool.pm/2676d1aa8baa23963e2724eb18b5743b4e1a2a79cfadbc12d2fdc99d" target="_blank" rel="noopener noreferrer">Stake with AA2</a>
+              </li>
+            </ul>
+          </li>
+          <li class="site-nav__item site-nav__item--has-sub">
+            <button type="button" class="site-nav__trigger" aria-expanded="false">
+              Community <span class="site-nav__chev" aria-hidden="true">▾</span>
+            </button>
+            <ul class="site-nav__sub">
+              <li><a href="https://twitter.com/AstarterDefiHub" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+              <li><a href="https://t.me/AstarterDefiHubOfficial" target="_blank" rel="noopener noreferrer">Telegram</a></li>
+              <li><a href="https://discord.gg/astarter" target="_blank" rel="noopener noreferrer">Discord</a></li>
+              <li><a href="https://youtube.com/c/astartertv" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+              <li><a href="https://medium.com/@AstarterDefiHub" target="_blank" rel="noopener noreferrer">Medium</a></li>
+              <li><a href="mailto:contact@astarter.io">Email</a></li>
+            </ul>
+          </li>
+        </ul>
+        <div class="site-nav__right">
+          <a href="https://dex.astarter.io/" target="_blank" rel="noopener noreferrer" class="btn-launch">Launch APP (Beta)</a>
+        </div>
+        <button type="button" class="site-nav__burger" id="nav-burger" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <div class="site-nav__drawer" id="nav-drawer">
+        <div class="site-nav__drawer-groups">
+          <div class="site-nav__drawer-group">
+            <p class="site-nav__drawer-title">Education</p>
+            <a href="https://astarter.gitbook.io/astarter" target="_blank" rel="noopener noreferrer">Docs</a>
+            <a href="https://docsend.com/view/wkwt6r7wvgmg3kmu" target="_blank" rel="noopener noreferrer">Deck</a>
+            <a href="https://astarter.gitbook.io/astarter-faq/" target="_blank" rel="noopener noreferrer">FAQs</a>
+          </div>
+          <div class="site-nav__drawer-group">
+            <p class="site-nav__drawer-title">Products</p>
+            <a href="https://dex.astarter.io/" target="_blank" rel="noopener noreferrer">DEX V2.1 (Beta)</a>
+            <a href="https://astarter.typeform.com/IDOAPPLY" target="_blank" rel="noopener noreferrer">IDO Apply</a>
+          </div>
+          <div class="site-nav__drawer-group">
+            <p class="site-nav__drawer-title">ISPO</p>
+            <a href="https://calculator.astarter.io/" target="_blank" rel="noopener noreferrer">ISPO Dashboard</a>
+            <a href="https://pool.pm/68edf81e0f10a4469191006506ca877460e7a9c5721e1c58709f3a22" target="_blank" rel="noopener noreferrer">Stake with AA1</a>
+            <a href="https://pool.pm/2676d1aa8baa23963e2724eb18b5743b4e1a2a79cfadbc12d2fdc99d" target="_blank" rel="noopener noreferrer">Stake with AA2</a>
+          </div>
+          <div class="site-nav__drawer-group">
+            <p class="site-nav__drawer-title">Community</p>
+            <a href="https://twitter.com/AstarterDefiHub" target="_blank" rel="noopener noreferrer">Twitter</a>
+            <a href="https://t.me/AstarterDefiHubOfficial" target="_blank" rel="noopener noreferrer">Telegram</a>
+            <a href="https://discord.gg/astarter" target="_blank" rel="noopener noreferrer">Discord</a>
+            <a href="https://youtube.com/c/astartertv" target="_blank" rel="noopener noreferrer">YouTube</a>
+            <a href="https://medium.com/@AstarterDefiHub" target="_blank" rel="noopener noreferrer">Medium</a>
+            <a href="mailto:contact@astarter.io">Email</a>
+          </div>
+        </div>
+        <a href="https://dex.astarter.io/" target="_blank" rel="noopener noreferrer" class="btn-launch">Launch APP (Beta)</a>
+      </div>
+    </nav>
+
+    <main id="main">
+    <section class="hero" aria-label="Hero">
+      <div class="hero__wrap">
+        <video
+          class="hero__video"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="none"
+          poster="assets/hero-poster.webp"
+          disablepictureinpicture
+          aria-hidden="true"
+        >
+          <source src="assets/hero-mobile.mp4" type="video/mp4" media="(max-width: 900px)" />
+          <source src="assets/hero-desktop-sharp.mp4" type="video/mp4" />
+        </video>
+        <div class="hero__content">
+          <div class="hero__head reveal">
+            <h1 class="hero__title">Infrastructure for the AI Economy</h1>
+            <p class="hero__subtitle">Web4 DePIN AI-native Network powered by ENI.</p>
+          </div>
+          <div class="hero__actions reveal">
+            <a
+              href="https://astarter.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-launch hero__cta"
+              >Buy Node</a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="story" id="story-section">
+      <div class="story__sticky">
+        <div class="story__inner">
+          <div class="story__text">
+            <span class="story__word story__word--lit">In </span><span class="story__word story__word--lit">the </span
+            ><span class="story__word story__word--lit">future, </span><span class="story__word story__word--lit">millions </span
+            ><span class="story__word story__word--lit">of </span><span class="story__word story__word--lit">AI </span
+            ><span class="story__word story__word--lit">agents </span><span class="story__word story__word--lit">will </span
+            ><span class="story__word story__word--lit">work </span><span class="story__word story__word--lit">autonomously </span
+            ><span class="story__word story__word--lit">on-chain. </span><span class="story__word story__word--lit">Astarter </span
+            ><span class="story__word story__word--lit">is </span><span class="story__word story__word--lit">building </span
+            ><span class="story__word story__word--lit">a </span><span class="story__word story__word--lit">DePIN-powered </span
+            ><span class="story__word story__word--lit">infrastructure </span><span class="story__word story__word--lit">for </span
+            ><span class="story__word story__word--lit">them. </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="abox-anchor" id="abox-scroll-area">
+      <section class="abox">
+        <div class="abox__layout">
+          <div class="abox__canvas-col">
+            <div class="abox__canvas-wrap"><div id="abox-canvas-wrap"></div></div>
+            <div class="abox__dots" id="abox-dots"></div>
+          </div>
+          <div class="abox__copy" id="abox-copy">
+            <div class="abox__stack">
+              <article class="abox-panel abox-panel--active" data-abox-index="0">
+                <h2>Meet ABOX</h2>
+                <p>
+                  ABOX is the physical gateway to the Web4 AI network. It connects users to autonomous AI agents,
+                  decentralized infrastructure, and the emerging AI economy powered by ASTARTER.
+                </p>
+              </article>
+              <article class="abox-panel" data-abox-index="1">
+                <h3>AI Agent Ready</h3>
+                <p>
+                  Built to interact with OpenClaw-style autonomous agents, ABOX enables intelligent automation, agent
+                  coordination, and seamless interaction with the emerging AI agent ecosystem.
+                </p>
+              </article>
+              <article class="abox-panel" data-abox-index="2">
+                <h3>Powered by A-Core</h3>
+                <p>
+                  At the heart of ABOX is A-Core, a purpose-built chip designed for the age of AI agents. It powers fast
+                  interactions, intelligent processing, and seamless connectivity with the ASTARTER network.
+                </p>
+              </article>
+              <article class="abox-panel" data-abox-index="3">
+                <h3>AI Agent Gateway</h3>
+                <p>
+                  ABOX connects you to the world of autonomous AI agents. From intelligent assistants to automated workflows,
+                  it enables agents to interact, execute tasks, and participate in digital economies.
+                </p>
+              </article>
+              <article class="abox-panel" data-abox-index="4">
+                <h3>Web4 Infrastructure Node</h3>
+                <p>
+                  ABOX helps power the decentralized infrastructure behind the Web4 AI network. By connecting to the ASTARTER
+                  ecosystem, it expands the physical layer of the emerging AI economy.
+                </p>
+              </article>
+              <article class="abox-panel" data-abox-index="5">
+                <h3>Access the AI Economy</h3>
+                <p>
+                  ABOX unlocks access to the next generation of intelligent markets and applications. From AI-driven prediction
+                  markets to autonomous financial systems, it connects users to the emerging machine economy.
+                </p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="gateway" id="features">
+      <div class="container">
+        <div class="gateway__title" id="gateway-title">
+          <h2>The Gateway to the Web4 Economy.</h2>
+        </div>
+        <div class="gateway__grid">
+          <div class="gateway-card">
+            <div class="gateway-card__icon">
+              <img
+                class="gateway-card__media"
+                src="assets/gateway-lottie-1.svg"
+                alt=""
+                decoding="async"
+                loading="lazy"
+                fetchpriority="low"
+                aria-hidden="true"
+              />
+            </div>
+            <div class="gateway-card__body">
+              <h3>DePIN Node</h3>
+              <p>Power the decentralized infrastructure of the AI network.</p>
+            </div>
+          </div>
+          <div class="gateway-card">
+            <div class="gateway-card__icon">
+              <img
+                class="gateway-card__media"
+                src="assets/gateway-lottie-2.svg"
+                alt=""
+                decoding="async"
+                loading="lazy"
+                fetchpriority="low"
+                aria-hidden="true"
+              />
+            </div>
+            <div class="gateway-card__body">
+              <h3>OpenClaw Ready</h3>
+              <p>Built to interact with OpenClaw-style autonomous AI agents.</p>
+            </div>
+          </div>
+          <div class="gateway-card">
+            <div class="gateway-card__icon">
+              <img
+                class="gateway-card__media"
+                src="assets/gateway-lottie-3.svg"
+                alt=""
+                decoding="async"
+                loading="lazy"
+                fetchpriority="low"
+                aria-hidden="true"
+              />
+            </div>
+            <div class="gateway-card__body">
+              <h3>AI Agent Gateway</h3>
+              <p>Your entry point into the world of autonomous AI agents.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="gateway-core" id="gateway-core">
+          <div class="gateway-core__decor" aria-hidden="true">
+            <img class="gateway-core__circuit" src="assets/gateway-circuit.svg" alt="" decoding="async" loading="lazy" fetchpriority="low" aria-hidden="true" />
+          </div>
+          <div class="gateway-core__overlay"></div>
+          <div class="gateway-core__inner">
+            <img
+              class="gateway-core__logo-img"
+              src="assets/core-BRYOy9yX.png"
+              alt=""
+              decoding="async"
+              aria-hidden="true"
+            />
+            <div class="gateway-core__text" id="gateway-core-text">
+              <h3>A-Core</h3>
+              <p>
+                The brain of ABOX — a next-generation AI chip built for autonomous agents, intelligent systems, and the
+                decentralized infrastructure of the Web4 internet.
+              </p>
+            </div>
+            <div class="gateway-core__cta">
+              <a href="https://astarter.gitbook.io/astarter" target="_blank" rel="noopener noreferrer">Learn more</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="nodes" id="nodes-section">
+      <div class="nodes__layout">
+        <div class="nodes__visual">
+          <!-- 官网此处为 Spline Viewer（非第二个 glb）；内部 canvas 约 372×372 缓冲区分辨率 -->
+          <spline-viewer
+            id="nodes-spline-viewer"
+            class="nodes__spline"
+            url="https://prod.spline.design/jaN1x7CFhOATFBGd/scene.splinecode"
+            loading="lazy"
+            background="#000000"
+          ></spline-viewer>
+        </div>
+        <div class="nodes__content">
+          <div class="nodes__head reveal">
+            <p class="nodes__eyebrow">Nodes</p>
+            <h2 class="nodes__title">Become a Network Operator</h2>
+            <p class="nodes__subtitle">
+              A-Core Nodes are the virtual infrastructure of the ASTARTER network, granting early access to the economic layer
+              of A-Core before the ABOX hardware ships.
+            </p>
+          </div>
+          <div class="nodes__cta">
+            <a href="https://astarter.io" target="_blank" rel="noopener noreferrer"
+              >Buy Nodes <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 18px">arrow_forward</span></a
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tokenomics">
+      <div class="container">
+        <header class="tokenomics__head reveal">
+          <p class="tokenomics__eyebrow">$AA Token</p>
+          <h2 class="tokenomics__title">Tokenomics</h2>
+          <p class="tokenomics__sub">Total Supply: <strong>1,000,000,000 $AA</strong></p>
+        </header>
+        <div class="tokenomics__body">
+          <div class="tokenomics__chart-wrap">
+            <div id="tokenomics-pie"></div>
+            <div class="tokenomics__center">
+              <span class="tokenomics__center-total">1,000,000,000</span>
+              <span class="tokenomics__center-label">$AA Total</span>
+            </div>
+          </div>
+          <div class="tokenomics__legend" id="tokenomics-legend">
+            <div class="tokenomics__legend-item" data-seg="Staking Ecosystem">
+              <div class="tokenomics__legend-left">
+                <span class="tokenomics__legend-dot" style="background: rgb(32, 15, 87)"></span>
+                <div>
+                  <div class="tokenomics__legend-name">Staking Ecosystem</div>
+                  <div class="tokenomics__legend-sub">Staking ecosystem allocation</div>
+                </div>
+              </div>
+              <div>
+                <div class="tokenomics__legend-pct" style="color: rgb(32, 15, 87)">42%</div>
+                <div class="tokenomics__legend-amt">420,000,000</div>
+              </div>
+            </div>
+            <div class="tokenomics__legend-item" data-seg="Ecosystem Construction">
+              <div class="tokenomics__legend-left">
+                <span class="tokenomics__legend-dot" style="background: rgb(90, 90, 191)"></span>
+                <div>
+                  <div class="tokenomics__legend-name">Ecosystem Construction</div>
+                  <div class="tokenomics__legend-sub">Ecosystem development allocation</div>
+                </div>
+              </div>
+              <div>
+                <div class="tokenomics__legend-pct" style="color: rgb(90, 90, 191)">38%</div>
+                <div class="tokenomics__legend-amt">380,000,000</div>
+              </div>
+            </div>
+            <div class="tokenomics__legend-item" data-seg="Market Value Management">
+              <div class="tokenomics__legend-left">
+                <span class="tokenomics__legend-dot" style="background: rgb(224, 64, 251)"></span>
+                <div>
+                  <div class="tokenomics__legend-name">Market Value Management</div>
+                  <div class="tokenomics__legend-sub">Market &amp; treasury management</div>
+                </div>
+              </div>
+              <div>
+                <div class="tokenomics__legend-pct" style="color: rgb(224, 64, 251)">10%</div>
+                <div class="tokenomics__legend-amt">100,000,000</div>
+              </div>
+            </div>
+            <div class="tokenomics__legend-item" data-seg="Investment &amp; Research">
+              <div class="tokenomics__legend-left">
+                <span class="tokenomics__legend-dot" style="background: rgb(191, 127, 255)"></span>
+                <div>
+                  <div class="tokenomics__legend-name">Investment &amp; Research</div>
+                  <div class="tokenomics__legend-sub">Investment research allocation</div>
+                </div>
+              </div>
+              <div>
+                <div class="tokenomics__legend-pct" style="color: rgb(191, 127, 255)">5%</div>
+                <div class="tokenomics__legend-amt">50,000,000</div>
+              </div>
+            </div>
+            <div class="tokenomics__legend-item" data-seg="Node Airdrop">
+              <div class="tokenomics__legend-left">
+                <span class="tokenomics__legend-dot" style="background: rgb(0, 194, 255)"></span>
+                <div>
+                  <div class="tokenomics__legend-name">Node Airdrop</div>
+                  <div class="tokenomics__legend-sub">Node airdrop allocation</div>
+                </div>
+              </div>
+              <div>
+                <div class="tokenomics__legend-pct" style="color: rgb(0, 194, 255)">4%</div>
+                <div class="tokenomics__legend-amt">40,000,000</div>
+              </div>
+            </div>
+            <div class="tokenomics__legend-item" data-seg="Community Incentives">
+              <div class="tokenomics__legend-left">
+                <span class="tokenomics__legend-dot" style="background: rgb(93, 255, 230)"></span>
+                <div>
+                  <div class="tokenomics__legend-name">Community Incentives</div>
+                  <div class="tokenomics__legend-sub">Community incentive allocation</div>
+                </div>
+              </div>
+              <div>
+                <div class="tokenomics__legend-pct" style="color: rgb(93, 255, 230)">1%</div>
+                <div class="tokenomics__legend-amt">10,000,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="partner-marquee">
+      <div class="container">
+        <header class="partner-marquee__head reveal">
+          <p class="partner-marquee__eyebrow">Partners</p>
+          <h2 class="partner-marquee__title">Trusted by the Best</h2>
+        </header>
+        <div class="partner-marquee__rows">
+          <div class="partner-marquee__viewport">
+            <div class="partner-marquee__track partner-marquee__track--left" id="partners-track-1"></div>
+          </div>
+          <div class="partner-marquee__viewport">
+            <div class="partner-marquee__track partner-marquee__track--right" id="partners-track-2"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap" id="roadmap-section">
+      <div class="roadmap__layout">
+        <header class="roadmap__head reveal">
+          <p class="roadmap__eyebrow">Roadmap</p>
+          <h2 class="roadmap__title">Laying the Foundation For the Autonomous Economy</h2>
+        </header>
+        <div class="roadmap__timeline">
+          <div class="roadmap__line-track">
+            <div class="roadmap__line-fill" id="roadmap-fill"></div>
+          </div>
+          <div class="roadmap__items">
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2025 Q4</span>
+                <h3 class="roadmap-item__title">Infrastructure Genesis</h3>
+                <p class="roadmap-item__desc">Launch ASTARTER Node Network</p>
+              </div>
+            </div>
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2026 Q1</span>
+                <h3 class="roadmap-item__title">ABOX Preorder</h3>
+                <p class="roadmap-item__desc">Launch the ABOX AI Infrastructure Device</p>
+              </div>
+            </div>
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2026 Q2</span>
+                <h3 class="roadmap-item__title">ABOX Shipping</h3>
+                <p class="roadmap-item__desc">Hardware nodes begin powering the network</p>
+              </div>
+            </div>
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2026 Q2</span>
+                <h3 class="roadmap-item__title">Agent Infrastructure</h3>
+                <p class="roadmap-item__desc">AI agent interaction layer</p>
+              </div>
+            </div>
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2026 Q3</span>
+                <h3 class="roadmap-item__title">Prediction Markets</h3>
+                <p class="roadmap-item__desc">Next-generation AI-powered forecasting markets</p>
+              </div>
+            </div>
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2026 Q4</span>
+                <h3 class="roadmap-item__title">ADEX 3.0 Launch</h3>
+                <p class="roadmap-item__desc">Trading infrastructure for machine economies with Astarter native AI DEX</p>
+              </div>
+            </div>
+            <div class="roadmap-item">
+              <div class="roadmap-item__dot"></div>
+              <div>
+                <span class="roadmap-item__period">2027+</span>
+                <h3 class="roadmap-item__title">Autonomous Economy</h3>
+                <p class="roadmap-item__desc">AI agents operating markets autonomously</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="news">
+      <div class="container">
+        <header class="news__head reveal">
+          <p class="news__eyebrow">News</p>
+          <h2 class="news__title">Latest News About Astarter</h2>
+        </header>
+        <div class="news__desktop">
+          <div class="news__viewport">
+            <div class="news__track" id="blog-track-desktop"></div>
+          </div>
+          <div class="news__controls">
+            <button type="button" class="news__btn" data-carousel="prev" aria-label="Previous">
+              <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <div class="news__dots" id="news-dots"></div>
+            <button type="button" class="news__btn" data-carousel="next" aria-label="Next">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </div>
+        </div>
+        <div class="news__mobile">
+          <div class="news__viewport">
+            <div class="news__track" id="blog-track-mobile"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="subscribe">
+      <div class="container">
+        <img class="subscribe__bg" src="assets/newsletter-bg.webp" alt="" decoding="async" loading="lazy" aria-hidden="true" />
+        <div class="subscribe__form-wrap reveal">
+          <h3 class="subscribe__title">Let's Stay Connected</h3>
+          <p class="subscribe__text">Subscribe to get updates on our progress.</p>
+          <form class="subscribe__form" id="newsletter-form">
+            <input class="subscribe__input" type="email" name="email" placeholder="Enter your Email" required autocomplete="email" />
+            <button type="submit" class="subscribe__submit" aria-label="Subscribe">
+              <span class="material-symbols-outlined">arrow_right_alt</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+      <div class="container">
+        <div class="site-footer__top">
+          <div class="site-footer__brand">
+            <div class="site-footer__logo-row">
+              <img class="site-footer__logo" src="assets/logo-DKIUXeE4.png" alt="ASTARTER" width="120" height="32" decoding="async" />
+              <span class="site-footer__logo-text">ASTARTER</span>
+            </div>
+            <p class="site-footer__tagline">Web4 AI Agent DePIN Network</p>
+            <h3 class="site-footer__social-title">Follow Us</h3>
+            <div class="site-footer__social">
+              <a href="https://x.com/AstarterDefiHub" target="_blank" rel="noopener noreferrer" aria-label="X"
+                ><svg width="24" height="24" viewBox="0 0 512 512" fill="currentColor"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg
+              ></a>
+              <a href="https://discord.gg/astarter" target="_blank" rel="noopener noreferrer" aria-label="Discord"
+                ><svg width="24" height="24" viewBox="0 0 640 512" fill="currentColor"><path d="M524.531 69.836a1.5 1.5 0 00-.764-.7A485.065 485.065 0 00404.081 32.03a1.816 1.816 0 00-1.923.91 337.461 337.461 0 00-14.9 30.6 447.848 447.848 0 00-134.426 0 309.541 309.541 0 00-15.135-30.6 1.89 1.89 0 00-1.924-.91A483.689 483.689 0 00116.085 69.137a1.712 1.712 0 00-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 00.765 1.375A487.666 487.666 0 00176.02 479.918a1.9 1.9 0 002.063-.676A348.2 348.2 0 00208.12 430.4a1.86 1.86 0 00-1.019-2.588 321.173 321.173 0 01-45.868-21.853 1.885 1.885 0 01-.185-3.126c3.082-2.309 6.166-4.711 9.109-7.137a1.819 1.819 0 011.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 011.924.233c2.944 2.426 6.027 4.851 9.132 7.16a1.884 1.884 0 01-.162 3.126 301.407 301.407 0 01-45.89 21.83 1.875 1.875 0 00-1 2.611 391.055 391.055 0 0030.014 48.815 1.864 1.864 0 002.063.7A486.048 486.048 0 00610.7 405.729a1.882 1.882 0 00.765-1.352C623.729 277.594 590.933 167.465 524.531 69.836z"/></svg
+              ></a>
+              <a href="https://t.me/AstarterDefiHubOfficial" target="_blank" rel="noopener noreferrer" aria-label="Telegram"
+                ><svg width="24" height="24" viewBox="0 0 448 512" fill="currentColor"><path d="M446.7 98.6l-67.6 318.8c-5.1 22.5-18.4 28.1-37.3 17.5l-103-75.9-49.7 47.8c-5.5 5.5-10.1 10.1-20.7 10.1l7.4-104.9 190.9-172.5c8.3-7.4-1.8-11.5-12.9-4.1L117.8 284 16.2 252.2c-22.1-6.9-22.5-22.1 4.6-32.7L418.2 66.4c18.4-6.9 34.5 4.1 28.5 32.2z"/></svg
+              ></a>
+              <a href="https://medium.com/@AstarterDefiHub" target="_blank" rel="noopener noreferrer" aria-label="Medium"
+                ><svg width="24" height="24" viewBox="0 0 640 512" fill="currentColor"><path d="M180.5 74.262C80.813 74.262 0 155.633 0 256s80.819 181.738 180.5 181.738S361 356.373 361 256 280.191 74.262 180.5 74.262zm288.25 10.646c-49.845 0-90.245 76.619-90.245 171.095s40.406 171.1 90.245 171.1 90.251-76.619 90.251-171.1S518.6 84.908 468.75 84.908zM640 256c0 101.523-42.8 183.75-95.578 183.75S448.844 357.523 448.844 256 491.625 72.25 544.4 72.25 640 154.477 640 256z"/></svg
+              ></a>
+            </div>
+          </div>
+          <div class="site-footer__columns">
+            <div class="site-footer__col">
+              <span class="site-footer__col-title">Education</span>
+              <ul class="site-footer__links">
+                <li><a href="https://astarter.gitbook.io/astarter" target="_blank" rel="noopener noreferrer">Docs</a></li>
+                <li><a href="https://docsend.com/view/wkwt6r7wvgmg3kmu" target="_blank" rel="noopener noreferrer">Deck</a></li>
+                <li><a href="https://astarter.gitbook.io/astarter-faq/" target="_blank" rel="noopener noreferrer">FAQs</a></li>
+              </ul>
+            </div>
+            <div class="site-footer__col">
+              <span class="site-footer__col-title">Products</span>
+              <ul class="site-footer__links">
+                <li><a href="https://dex.astarter.io/" target="_blank" rel="noopener noreferrer">DEX V2.1 (Beta)</a></li>
+                <li><a href="https://astarter.typeform.com/IDOAPPLY" target="_blank" rel="noopener noreferrer">IDO Apply</a></li>
+              </ul>
+            </div>
+            <div class="site-footer__col">
+              <span class="site-footer__col-title">ISPO</span>
+              <ul class="site-footer__links">
+                <li><a href="https://calculator.astarter.io/" target="_blank" rel="noopener noreferrer">ISPO Dashboard</a></li>
+                <li><a href="https://pool.pm/68edf81e0f10a4469191006506ca877460e7a9c5721e1c58709f3a22" target="_blank" rel="noopener noreferrer">Stake with AA1</a></li>
+                <li><a href="https://pool.pm/2676d1aa8baa23963e2724eb18b5743b4e1a2a79cfadbc12d2fdc99d" target="_blank" rel="noopener noreferrer">Stake with AA2</a></li>
+              </ul>
+            </div>
+            <div class="site-footer__col">
+              <span class="site-footer__col-title">Community</span>
+              <ul class="site-footer__links">
+                <li><a href="https://x.com/AstarterDefiHub" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                <li><a href="https://t.me/AstarterDefiHubOfficial" target="_blank" rel="noopener noreferrer">Telegram</a></li>
+                <li><a href="https://discord.gg/astarter" target="_blank" rel="noopener noreferrer">Discord</a></li>
+                <li><a href="https://www.youtube.com/c/astartertv" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+                <li><a href="https://medium.com/@AstarterDefiHub" target="_blank" rel="noopener noreferrer">Medium</a></li>
+                <li><a href="mailto:contact@astarter.io">Email</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="site-footer__divider"></div>
+        <div class="site-footer__bottom">
+          <p class="site-footer__copy">© 2026 ASTARTER. All rights reserved</p>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="js/spline-lazy-bootstrap.js"></script>
+    <!-- TODO: replace integrity="" values with computed sha384 hashes for SRI protection -->
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+    <script defer src="js/app.js"></script>
+
+    <!-- ── JSON-LD structured data ── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Astarter",
+      "url": "https://astarter.io",
+      "logo": "https://astarter.io/assets/logo-DKIUXeE4.png",
+      "description": "Web4 AI DePIN Network powered by ENI. Infrastructure for the autonomous AI economy on Cardano.",
+      "sameAs": [
+        "https://twitter.com/AstarterDefiHub",
+        "https://t.me/AstarterDefiHubOfficial",
+        "https://discord.gg/astarter",
+        "https://www.youtube.com/c/astartertv",
+        "https://medium.com/@AstarterDefiHub"
+      ]
+    }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /assets/news/
+
+Sitemap: https://astarter.io/sitemap.xml

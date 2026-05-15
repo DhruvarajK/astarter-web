@@ -1,0 +1,2124 @@
+/* Astarter landing — pure HTML/CSS/JS */
+
+/* ── Self-hosted fonts ──
+ * Removed the Google Fonts <link> so we don't depend on fonts.googleapis.com.
+ * In Brave (and other privacy browsers), 3rd-party fonts get extra scrutiny
+ * which delays first paint. Local fonts are instant + cacheable forever. */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/Poppins-400.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../assets/fonts/Poppins-500.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fonts/Poppins-600.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/Poppins-700.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../assets/fonts/Poppins-800.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../assets/fonts/Inter-600.ttf") format("truetype");
+}
+
+html {
+  /* scroll-behavior: smooth REMOVED — on Chromium it also interpolates
+   * mouse-wheel scroll, causing the "stuck" feeling. Wheel scroll now
+   * uses native instant response. Anchor-link smoothness handled per-link
+   * via JS when needed (.scrollIntoView({behavior:'smooth'})). */
+  scroll-behavior: auto;
+}
+
+:root {
+  --purple: #6f00ff;
+  --purple-hover: #8807ff;
+  --bg: #040404;
+  --card-bg: linear-gradient(160deg, #1a1a1a, #0d0d0d 40%, #040404);
+  --font: Poppins, system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
+/* Accessible skip-link: hidden until keyboard focus
+ * Uses transform (composited) NOT top (layout-trigger) — Prompt 1 fix. */
+.skip-link {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 10001;
+  padding: 12px 16px;
+  background: var(--purple);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.2s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid #fff;
+}
+
+/* Honor user OS-level reduced-motion preference everywhere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg);
+  color: rgba(255, 255, 255, 0.87);
+  font-family: var(--font);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Tell browser scroll is the dominant gesture — skips click-tracking delay */
+  touch-action: manipulation;
+  /* Hint compositor to keep document on its own layer for smoother scroll */
+  overflow-x: hidden;
+}
+
+/* Promote ONLY elements actively animating to a compositor layer.
+ * The previous universal `img, video, canvas { translateZ(0) }` was a mistake —
+ * it promoted 150+ partner/blog/asset images, exploding GPU memory and
+ * compositor frame time. The hero video gets its own promotion below. */
+.hero__video {
+  /* set in .hero__video block; this is just documentation */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* ---- Nav ---- */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 80px;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background 0.3s ease,
+    backdrop-filter 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  font-family: Poppins, sans-serif;
+  /* Promote to own compositor layer so backdrop-filter blur is rasterized
+   * on the GPU once per change, not recomputed every scroll frame. */
+  transform: translateZ(0);
+  will-change: background, backdrop-filter;
+  contain: layout style;
+}
+.site-nav--scrolled {
+  /* Near top: blurred glass effect, since hero content is behind nav. */
+  background: rgba(4, 4, 4, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-bottom-color: transparent;
+}
+.site-nav--solid {
+  /* Scrolled deep: nothing visually interesting behind the nav. Drop the
+   * GPU-expensive backdrop-filter entirely and go fully opaque. Saves a
+   * per-frame full-width blur pass on every scroll tick at the bottom. */
+  background: #040404;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.site-nav__inner {
+  max-width: 1600px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.site-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+/* 与原版一致：白色剪影（用 img + filter，避免 file:// 下 mask-image 被 CORS 拦截） */
+.site-nav__logo-img {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  object-fit: contain;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+.site-nav__title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.site-nav__menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-nav__menu li {
+  margin: 0 20px;
+}
+.site-nav__item {
+  position: relative;
+  margin: 0 16px;
+  list-style: none;
+}
+.site-nav__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.site-nav__trigger:hover,
+.site-nav__item.is-open .site-nav__trigger {
+  color: var(--purple);
+}
+.site-nav__chev {
+  font-size: 12px;
+  opacity: 0.85;
+}
+.site-nav__sub {
+  position: absolute;
+  /* Start RIGHT below the trigger (no dead zone) — the 12px visual gap
+   * is now padding INSIDE the dropdown's hover area, so mouse can move
+   * from trigger to items without losing :hover and closing the menu. */
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  margin: 0;
+  /* Top padding creates the visual breathing room; the bg is below it */
+  padding: 12px 0 8px 0;
+  list-style: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, visibility 0.18s ease;
+  z-index: 1002;
+}
+/* The actual visible menu surface is a child wrapper — bg only there,
+ * leaving the 12px padding above invisible-but-hoverable. */
+.site-nav__sub::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 12, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  z-index: -1;
+}
+.site-nav__item:hover .site-nav__sub,
+.site-nav__item.is-open .site-nav__sub {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  /* Slight opening delay = "hover intent" — prevents accidental opens
+   * when sweeping mouse across the nav bar */
+  transition-delay: 0.08s;
+}
+.site-nav__item .site-nav__sub {
+  /* Slight closing delay = grace period for cursor to reach items */
+  transition-delay: 0.15s;
+}
+.site-nav__sub li {
+  margin: 0;
+}
+.site-nav__sub a {
+  display: block;
+  padding: 10px 18px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.site-nav__sub a:hover {
+  color: #fff;
+  background: rgba(111, 0, 255, 0.12);
+}
+.site-nav__menu a {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.site-nav__menu a:hover {
+  color: var(--purple);
+}
+.site-nav__right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.site-nav__social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.site-nav__social a {
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+}
+.site-nav__social a:hover {
+  color: #fff;
+}
+.btn-launch {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--purple);
+  color: #fff !important;
+  letter-spacing: 0.1rem;
+  font-weight: 600;
+  font-size: 13px;
+  clip-path: polygon(10% 0%, 100% 0%, 100% 70%, 90% 100%, 0% 100%, 0% 30%);
+  transition: all 0.3s ease;
+}
+.btn-launch:hover {
+  transform: translateY(-2px);
+  background: var(--purple-hover);
+  color: #fff !important;
+}
+.site-nav__right .btn-launch {
+  margin-left: 20px;
+}
+.hero__cta.btn-launch {
+  margin: 0;
+}
+.site-nav__burger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  cursor: pointer;
+  z-index: 1001;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.site-nav__burger span {
+  width: 100%;
+  height: 2px;
+  background: #fff;
+  transition: all 0.3s;
+}
+.site-nav__burger.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.site-nav__burger.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.site-nav__burger.is-open span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+.site-nav__drawer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-100%);
+  transition: transform 0.4s;
+  z-index: 999;
+}
+.site-nav__drawer.is-open {
+  transform: translateY(0);
+}
+.site-nav__drawer-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0 24px;
+  margin-bottom: 24px;
+}
+.site-nav__drawer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.site-nav__drawer-title {
+  margin: 0;
+  color: var(--purple);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.site-nav__drawer-group a {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+}
+.site-nav__drawer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+.site-nav__drawer li {
+  margin: 20px 0;
+}
+.site-nav__drawer a {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+}
+.site-nav__drawer .btn-launch {
+  margin-top: 30px;
+}
+@media (max-width: 900px) {
+  .site-nav__menu,
+  .site-nav__right {
+    display: none;
+  }
+  .site-nav__burger {
+    display: flex;
+  }
+  .site-nav__title {
+    display: none;
+  }
+  .site-nav__inner {
+    padding: 0 16px;
+  }
+}
+@media (min-width: 901px) {
+  .site-nav__drawer {
+    display: none;
+  }
+}
+
+/* ---- Hero ---- */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 90dvh;
+  overflow: hidden;
+  background: #040404;
+}
+/* Sharp WebP poster as the hero background, layered as its own element so
+ * we can apply a subtle Ken Burns (slow zoom) animation without affecting
+ * children. Single static image = zero decode cost, sharp at any resolution. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #040404 url(../assets/hero-poster.webp) center/cover no-repeat;
+  z-index: 0;
+  animation: heroKenBurns 24s ease-in-out infinite alternate;
+  /* Pause the animation whenever the hero scrolls off-screen. JS adds the
+   * .hero--paused class when the hero is no longer in viewport — saves
+   * continuous GPU transform calc while user is reading the rest of page. */
+}
+.hero--paused::after {
+  animation-play-state: paused;
+}
+@keyframes heroKenBurns {
+  from { transform: scale(1.00); }
+  to   { transform: scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero::after { animation: none; }
+}
+.hero__wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  overflow: hidden;
+}
+/* One combined gradient instead of two stacked overlays — half the blend cost */
+.hero__wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.5) 60%,
+    #040404 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  /* Pin the upscaled 720p video to its own GPU layer so the browser
+   * doesn't re-rasterize it during every scroll/composite pass. */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1600px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 32px;
+}
+.hero__head.reveal,
+.hero__actions.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out 0.05s,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s;
+}
+.hero__actions.reveal {
+  transition-delay: 0.35s, 0.35s;
+}
+.hero__head.reveal.is-visible,
+.hero__actions.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__head.reveal,
+  .hero__actions.reveal,
+  .hero__head.reveal.is-visible,
+  .hero__actions.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+.hero__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.hero__title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+.hero__subtitle {
+  font-size: 1rem;
+  color: #fff;
+  margin: 0;
+  max-width: 640px;
+  line-height: 1.6;
+}
+@media (max-width: 768px) {
+  .hero__title {
+    font-size: 2.4rem;
+  }
+  .hero__content {
+    padding: 0 16px;
+  }
+}
+@media (max-width: 480px) {
+  .hero__title {
+    font-size: 2rem;
+  }
+}
+
+/* ---- Story ---- */
+.story {
+  /* Was 300vh (4320px on 1440p — 3 full viewports of scrolling just to
+   * read one paragraph). 130vh keeps the word-fade effect but ~55% faster
+   * to scroll through. Mobile gets even shorter (90vh) below. */
+  height: 130vh;
+  background: var(--bg);
+}
+.story__sticky {
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.story__inner {
+  max-width: 1600px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.story__text {
+  max-width: 80%;
+  font-size: 3rem;
+  font-weight: 600;
+  text-align: left;
+  line-height: 1.5;
+}
+.story__word {
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+.story__word--dim {
+  color: #202020;
+}
+.story__word--lit {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+@media (max-width: 768px) {
+  .story__text {
+    font-size: 2rem;
+    max-width: 90%;
+  }
+}
+
+/* ---- ABOX ---- */
+.abox-anchor {
+  position: relative;
+  /* Was 550vh originally → 280vh (too fast to read 4 panels of copy)
+   * → 400vh now. ~100vh per panel = comfortable reading time AND smooth
+   * lerping between the 6 camera shots. Mobile = 260vh below. */
+  height: 400vh;
+}
+.abox {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: #fff;
+  overflow: hidden;
+}
+.abox__layout {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  max-width: 1600px;
+  margin: 0 auto;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0;
+  box-sizing: border-box;
+}
+.abox__canvas-col {
+  flex: 0 0 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* 与官网画布比例接近（约 856×686）；纯黑底与 Three 场景一致，避免接缝 */
+.abox__canvas-wrap {
+  width: 100%;
+  aspect-ratio: 856 / 686;
+  max-height: 80vh;
+  position: relative;
+  background: #040404;
+  overflow: hidden;
+}
+.abox__dots {
+  display: none;
+}
+.abox__copy {
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out 0.2s,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s;
+  will-change: opacity, transform;
+}
+.abox__copy--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.abox__stack {
+  position: relative;
+  min-height: 160px;
+}
+.abox-panel {
+  position: absolute;
+  inset: 0 auto auto 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+}
+.abox-panel--active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.abox-panel h2 {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 20px;
+}
+.abox-panel h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+.abox-panel p {
+  font-size: 1rem;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 420px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .abox__copy {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .abox-panel {
+    transition: none;
+  }
+}
+@media (max-width: 900px) {
+  .abox__layout {
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+  }
+  .abox__canvas-col {
+    flex: 0 0 45%;
+    width: 100%;
+    height: auto;
+  }
+  .abox__canvas-wrap {
+    max-height: 40dvh;
+    width: 100vw;
+  }
+  .abox__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 0 4px;
+  }
+  .abox__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+  .abox__dot--active {
+    background: #fff;
+    transform: scale(1.25);
+  }
+  .abox__copy {
+    flex: 1;
+    width: 100%;
+    height: auto;
+    justify-content: flex-start;
+    margin-top: 24px;
+    padding: 0 16px 24px;
+  }
+  .abox__stack {
+    min-height: 140px;
+  }
+  .abox-panel h2 {
+    font-size: 2rem;
+  }
+  .abox-panel h3 {
+    font-size: 1.5rem;
+  }
+  .abox-panel p {
+    font-size: 0.8rem;
+  }
+}
+
+/* ---- Gateway features ---- */
+.gateway {
+  background: var(--bg);
+  padding: 100px 0;
+  position: relative;
+  overflow: clip;
+  /* content-visibility removed: SVGs are now 347 KB optimized + lazy-loaded.
+   * Keeping `contain` for compositing isolation without paint-skip-on-rerender. */
+  contain: layout style;
+}
+.gateway .container {
+  position: relative;
+  max-width: 1600px;
+  padding: 0 32px;
+  margin: 0 auto;
+  z-index: 5;
+  --stack-gap: clamp(8px, 1.25vw, 20px);
+  --stack-size: calc((100% - (var(--stack-gap) + var(--stack-gap))) / 3);
+}
+.gateway__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: #fff;
+  margin-bottom: 32px;
+}
+.gateway__title h2 {
+  text-align: center;
+  font-size: clamp(1.75rem, 5vw, 3.5rem);
+  max-width: 22ch;
+  color: #fff;
+  line-height: 1.2;
+  margin: 0 0 16px;
+  white-space: normal;
+}
+@media (max-width: 991px) {
+  .gateway {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+  .gateway__title h2 {
+    font-size: clamp(1.5rem, 6vw, 2.75rem);
+    margin-bottom: 0;
+  }
+}
+@media (max-width: 768px) {
+  .gateway .container {
+    padding: 0 16px;
+  }
+}
+.gateway__grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 1fr;
+  gap: var(--stack-gap);
+  justify-content: center;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.gateway-card {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(160deg, #1a1a1a, #0d0d0d 40%, #040404);
+  transform-origin: center center;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* will-change removed — no transform animation runs on these cards
+   * (parallax was deliberately disabled). 3 wasted layers reclaimed. */
+}
+.gateway-card__icon {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 16px;
+}
+.gateway-card__icon svg,
+.gateway-card__icon .gateway-card__media {
+  width: 100%;
+  height: 100%;
+  max-width: 60%;
+  max-height: 60%;
+  display: block;
+  pointer-events: none;
+  border: none;
+}
+.gateway-card__body {
+  flex-shrink: 0;
+  padding: 20px;
+  color: #fff;
+}
+.gateway-card__body h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.gateway-card__body p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+.gateway-core {
+  position: relative;
+  width: var(--stack-size);
+  aspect-ratio: 1;
+  margin: 0 auto 64px;
+  z-index: 2;
+  background: var(--bg);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: border-color 0.45s, box-shadow 0.45s, background 0.45s;
+  overflow: visible;
+}
+.gateway-core__decor {
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 2s ease 0.2s;
+  pointer-events: none;
+  z-index: 1;
+}
+.gateway-core__circuit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
+  object-fit: cover;
+  display: block;
+}
+.gateway-core__overlay {
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(to bottom, transparent 70%, #040404 95%);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 1s ease 0.2s;
+}
+.gateway-core--active .gateway-core__decor,
+.gateway-core--active .gateway-core__overlay {
+  opacity: 1;
+}
+.gateway-core__inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12%;
+  z-index: 3;
+}
+.gateway-core__logo-img {
+  width: 70%;
+  max-width: 280px;
+  height: auto;
+  flex-shrink: 0;
+  display: block;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0.04));
+}
+.gateway-core--active .gateway-core__logo-img {
+  opacity: 1;
+}
+.gateway-core--active {
+  border: none;
+  /* Reduced from 5 stacked shadows (max blur 168px) to 2 — paint cost
+   * scales with blur radius, this is ~70% cheaper for near-identical look. */
+  box-shadow:
+    0 0 80px rgba(111, 0, 255, 0.55),
+    0 12px 24px rgba(0, 0, 0, 0.45);
+}
+.gateway-core__text {
+  text-align: center;
+  max-width: 72ch;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.gateway-core__text.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.gateway-core__text h3 {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.gateway-core__text p {
+  margin: 0;
+}
+.gateway-core__cta {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+.gateway-core__cta a {
+  background: #fff;
+  color: #000;
+  border: none;
+  width: 18.5vw;
+  max-width: 280px;
+  padding: 12px 20px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: Inter, sans-serif;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+.gateway-core__cta a:hover {
+  opacity: 0.92;
+}
+@media (max-width: 991px) {
+  .gateway .container {
+    --stack-gap: 10px;
+    --stack-size: 55vw;
+  }
+  .gateway__grid {
+    grid-template-columns: repeat(3, var(--stack-size));
+    grid-template-rows: 1fr;
+    justify-content: center;
+    padding-top: 5vh;
+    height: 100vh;
+  }
+  .gateway-card__body p {
+    display: none;
+  }
+  .gateway-core {
+    margin-top: 20vh;
+  }
+  .gateway-core__cta a {
+    width: 200px;
+    max-width: none;
+  }
+}
+@media (max-width: 768px) {
+  .gateway {
+    padding: 40px 0;
+  }
+  .gateway-core {
+    margin-bottom: 32px;
+  }
+}
+
+/* ---- Nodes ---- */
+.nodes {
+  display: flex;
+  background: var(--bg);
+  padding: 100px 0;
+  overflow: hidden;
+}
+.nodes__layout {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+.nodes__visual {
+  flex: 1 1 50%;
+  aspect-ratio: 1 / 1;
+  max-width: min(100%, 480px);
+  margin-inline: auto;
+  min-width: 0;
+  position: relative;
+  background: #000000;
+  overflow: hidden;
+  /* Skip rendering of the Spline viewer's WebGL canvas when off-screen.
+   * Spline runs its own continuous rAF loop — this is the only safe pause. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 480px;
+}
+.nodes__visual .nodes__spline,
+.nodes__visual spline-viewer {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+}
+.nodes__content {
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.nodes__head.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.nodes__head.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.nodes__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin: 0;
+}
+.nodes__title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+.nodes__subtitle {
+  font-size: 1rem;
+  color: #fff;
+  max-width: 520px;
+  line-height: 1.6;
+  margin: 0;
+}
+.nodes__cta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  background: var(--purple);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1rem;
+  clip-path: polygon(10% 0%, 100% 0%, 100% 70%, 90% 100%, 0% 100%, 0% 30%);
+  transition: transform 0.3s, background 0.3s;
+}
+.nodes__cta a:hover {
+  transform: translateY(-2px);
+  background: var(--purple-hover);
+}
+@media (max-width: 768px) {
+  .nodes {
+    padding: 40px 0;
+  }
+  .nodes__layout {
+    flex-direction: column;
+    padding: 0 16px;
+    gap: 24px;
+  }
+  .nodes__title {
+    font-size: 2rem;
+  }
+}
+
+/* ---- Tokenomics ---- */
+.tokenomics {
+  background: var(--bg);
+  padding: 100px 0;
+  overflow: hidden;
+  /* Removed content-visibility — paints the donut SVG once, then cached.
+   * Avoids the re-paint cost on every reverse-scroll. */
+  contain: layout style;
+}
+.tokenomics .container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.tokenomics__head.reveal {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.tokenomics__head.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.tokenomics__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin: 0 0 12px;
+}
+.tokenomics__title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+.tokenomics__sub {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+.tokenomics__sub strong {
+  color: #aaa;
+}
+.tokenomics__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-top: 32px;
+}
+.tokenomics__chart-wrap {
+  position: relative;
+  width: min(100%, 480px);
+  margin: 0 auto;
+}
+.tokenomics__chart-wrap #tokenomics-pie {
+  min-height: 440px;
+}
+.tokenomics__center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tokenomics__center-total {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+.tokenomics__center-label {
+  font-size: 0.7rem;
+  color: #555;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tokenomics__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tokenomics__legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: #121212;
+  transition: background 0.25s, border-color 0.25s;
+}
+.tokenomics__legend-item:hover,
+.tokenomics__legend-item--active {
+  background: #1a1a1a;
+}
+.tokenomics__legend-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tokenomics__legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tokenomics__legend-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+.tokenomics__legend-sub {
+  font-size: 0.75rem;
+  color: #555;
+  margin-top: 1px;
+}
+.tokenomics__legend-pct {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.tokenomics__legend-amt {
+  font-size: 0.7rem;
+  color: #444;
+}
+@media (max-width: 768px) {
+  .tokenomics {
+    padding: 40px 0;
+  }
+  .tokenomics__title {
+    font-size: 2rem;
+  }
+  .tokenomics__body {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* ---- Partners marquee ---- */
+.partner-marquee {
+  background: var(--bg);
+  padding: 100px 0;
+  /* Removed content-visibility — 76 partner images would re-paint on every
+   * reverse-scroll back through this section. The JS IntersectionObserver
+   * already pauses the animation when off-screen (frees animation timer);
+   * the image compositor layers stay cached for smooth re-entry. */
+  contain: layout style;
+}
+.partner-marquee__head.reveal {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.partner-marquee__head.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.partner-marquee__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin: 0 0 12px;
+}
+.partner-marquee__title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0;
+}
+.partner-marquee__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 40px;
+  overflow: hidden;
+  position: relative;
+}
+.partner-marquee__rows::before,
+.partner-marquee__rows::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 160px;
+  z-index: 2;
+  pointer-events: none;
+}
+.partner-marquee__rows::before {
+  left: 0;
+  background: linear-gradient(to right, #040404, transparent);
+}
+.partner-marquee__rows::after {
+  right: 0;
+  background: linear-gradient(to left, #040404, transparent);
+}
+.partner-marquee__viewport {
+  width: 100%;
+  overflow: hidden;
+}
+.partner-marquee__track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+}
+@keyframes partnerScrollLeft {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes partnerScrollRight {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.partner-marquee__track--left {
+  animation: partnerScrollLeft 45s linear infinite;
+}
+.partner-marquee__track--right {
+  animation: partnerScrollRight 45s linear infinite;
+}
+/* Promote ONLY while running; JS toggles this class alongside animation pause */
+.partner-marquee__track.is-active {
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .partner-marquee__track--left,
+  .partner-marquee__track--right {
+    animation: none;
+  }
+}
+.partner-marquee__card {
+  flex-shrink: 0;
+  width: 180px;
+  height: 80px;
+  background: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+}
+.partner-marquee__card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+@media (max-width: 768px) {
+  .partner-marquee {
+    padding: 40px 0;
+  }
+  .partner-marquee__title {
+    font-size: 2rem;
+  }
+}
+
+/* ---- Roadmap ---- */
+.roadmap {
+  background: var(--bg);
+  padding: 100px 0;
+  /* Removed content-visibility — roadmap is mostly text + scaleY fill bar.
+   * One-time paint, then sticks in GPU layer. Smooth in both directions. */
+  contain: layout style;
+}
+.roadmap__layout {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+.roadmap__head.reveal {
+  position: sticky;
+  top: 120px;
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.roadmap__head.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.roadmap__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin: 0 0 12px;
+}
+.roadmap__title {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+}
+.roadmap__timeline {
+  display: flex;
+  gap: 0;
+}
+.roadmap__line-track {
+  position: relative;
+  width: 2px;
+  background: #1a1a1a;
+  flex-shrink: 0;
+  margin-right: 40px;
+  border-radius: 2px;
+}
+.roadmap__line-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--purple);
+  border-radius: 2px;
+  /* GPU-only transform animation — was animating `height` which triggers
+   * a layout pass on EVERY scroll-driven update, causing reflow + repaint
+   * of the entire roadmap section. scaleY is composited only. */
+  transform-origin: top center;
+  transform: scaleY(0);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+.roadmap__items {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  flex: 1;
+}
+.roadmap-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+.roadmap-item__dot {
+  position: absolute;
+  left: -48px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--purple);
+  border: 2px solid #040404;
+  box-shadow: 0 0 0 2px var(--purple);
+}
+.roadmap-item__period {
+  display: inline-block;
+  background: var(--purple);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 16px 4px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.roadmap-item__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+.roadmap-item__desc {
+  font-size: 0.95rem;
+  color: #a6a6a6;
+  margin: 0;
+  line-height: 1.6;
+}
+@media (max-width: 768px) {
+  .roadmap {
+    padding: 80px 0;
+  }
+  .roadmap__layout {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    padding: 0 16px;
+  }
+  .roadmap__head.reveal {
+    position: static;
+  }
+  .roadmap__title {
+    font-size: 2rem;
+  }
+  .roadmap__line-track {
+    margin-right: 24px;
+  }
+  .roadmap-item__dot {
+    left: -32px;
+  }
+}
+
+/* ---- News ---- */
+.news {
+  background: var(--bg);
+  padding: 100px 0;
+  /* content-visibility removed — re-paint cost on reverse-scroll exceeded
+   * the forward-skip benefit. Keep `contain` for compositor isolation. */
+  contain: layout style;
+}
+.news .container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.news__head.reveal {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.news__head.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.news__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin: 0 0 12px;
+}
+.news__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+.news__desktop {
+  display: block;
+}
+.news__mobile {
+  display: none;
+}
+.news__viewport {
+  overflow: hidden;
+  position: relative;
+}
+.news__track {
+  display: flex;
+  gap: 16px;
+}
+.news-card {
+  flex: 0 0 calc((100% - 32px) / 3);
+  display: flex;
+  flex-direction: column;
+  background: #111;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: border-color 0.25s, background 0.25s;
+  text-decoration: none;
+  color: inherit;
+  box-sizing: border-box;
+}
+.news-card:hover {
+  border-color: rgba(111, 0, 255, 0.35);
+  background: #161616;
+}
+.news-card__thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.news-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s;
+}
+.news-card:hover .news-card__thumb img {
+  transform: scale(1.04);
+}
+.news-card__body {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.news-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-card__date {
+  font-size: 0.8rem;
+  color: #555;
+  margin: 0;
+}
+.news__controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.news__btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+.news__btn:hover {
+  background: var(--purple);
+  border-color: var(--purple);
+}
+.news__dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.news__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #333;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.news__dot--active {
+  background: var(--purple);
+  transform: scale(1.3);
+}
+@media (max-width: 768px) {
+  .news {
+    padding: 60px 0;
+  }
+  .news .container {
+    padding: 0 16px;
+  }
+  .news__title {
+    font-size: 1.75rem;
+  }
+  .news__desktop {
+    display: none;
+  }
+  .news__mobile {
+    display: block;
+  }
+  .news__mobile .news__viewport {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .news__mobile .news__track {
+    gap: 16px;
+    padding-bottom: 8px;
+  }
+  .news__mobile .news-card {
+    flex: 0 0 min(85vw, 320px);
+    scroll-snap-align: start;
+  }
+}
+
+/* ---- Newsletter ---- */
+.subscribe {
+  padding: 100px 0;
+  background: var(--purple);
+  overflow: hidden;
+  position: relative;
+  contain: layout style;
+}
+.subscribe .container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px;
+  position: relative;
+}
+.subscribe__bg {
+  /* Hidden entirely — the rotated 140%-height image was creating a
+   * persistent compositor layer that the GPU had to maintain whenever the
+   * subscribe section was visible. Purely decorative; removing it has no
+   * impact on UX, but removes a sustained compositor cost. */
+  display: none;
+}
+.subscribe__form-wrap.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.subscribe__form-wrap.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.subscribe__title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: #fff;
+}
+.subscribe__text {
+  font-size: 1rem;
+  color: #fff;
+  margin: 0 0 1rem;
+  max-width: 600px;
+}
+.subscribe__form {
+  display: flex;
+  margin-top: 1rem;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #fff;
+  gap: 1rem;
+  width: 100%;
+  max-width: 500px;
+  transition: border-color 0.3s;
+}
+.subscribe__form:focus-within {
+  border-color: #fff;
+}
+.subscribe__input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  background: transparent;
+  color: #000;
+  font-size: 0.9rem;
+}
+.subscribe__input::placeholder {
+  color: #a6a6a6;
+}
+.subscribe__submit {
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.subscribe__submit:hover {
+  background: #fff;
+  color: #000;
+}
+@media (max-width: 576px) {
+  .subscribe {
+    padding: 40px 0;
+  }
+  .subscribe .container {
+    padding: 0 16px;
+  }
+  .subscribe__bg {
+    display: none;
+  }
+}
+
+/* ---- Footer ---- */
+.site-footer {
+  background: #1a1a1a;
+  color: #fff;
+  padding: 5rem 0 2rem;
+  font-family: var(--font);
+  contain: layout style;
+}
+.site-footer__top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+}
+.site-footer__brand {
+  flex: 0 0 100%;
+  max-width: 350px;
+  margin-bottom: 2rem;
+}
+.site-footer__logo-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.site-footer__logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
+.site-footer__logo-text {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-left: 10px;
+}
+.site-footer__tagline {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+.site-footer__social-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.site-footer__social {
+  display: flex;
+  gap: 8px;
+}
+.site-footer__social a {
+  color: #fff;
+  margin-right: 0.8rem;
+  transition: transform 0.3s;
+}
+.site-footer__social a:hover {
+  transform: translateY(-3px);
+}
+.site-footer__columns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex: 1;
+  margin-left: 4rem;
+}
+.site-footer__col {
+  flex: 0 0 auto;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
+}
+.site-footer__col-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+.site-footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.site-footer__links li {
+  margin-bottom: 16px;
+}
+.site-footer__links a {
+  color: #949494;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+.site-footer__links a:hover {
+  color: var(--purple);
+}
+.site-footer__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 24px 0;
+}
+.site-footer__bottom {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+.site-footer__copy {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+@media (max-width: 992px) {
+  .site-footer__columns {
+    margin-left: 0;
+  }
+}
+@media (max-width: 768px) {
+  .site-footer__columns {
+    width: 100%;
+  }
+  .site-footer__col {
+    flex: 0 0 calc(50% - 2rem);
+  }
+}
+
+/* ---- Toast ---- */
+#toast-root {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast-msg {
+  pointer-events: auto;
+  min-width: 280px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  background: #121212;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  font-size: 14px;
+  animation: toastIn 0.35s ease;
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#abox-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#abox-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+ * MOBILE PERFORMANCE OVERRIDES (≤ 900px)
+ * Targets the GPU/CPU bottlenecks that mobile devices struggle with:
+ *   1. backdrop-filter blur (very expensive on mobile GPU)
+ *   2. Large sticky sections forcing constant repaint
+ *   3. Infinite CSS keyframe animations
+ *   4. Long transition durations
+ * Keeps every visual feature — just renders cheaper.
+ * ───────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  /* Solid nav background — kills the per-frame backdrop blur sampling */
+  .site-nav--scrolled {
+    background: rgba(4, 4, 4, 0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Sticky sections: shorter than desktop, but enough to read the 4
+   * ABOX panels of copy at mobile reading pace. */
+  .story { height: 100vh; }
+  .abox-anchor { height: 280vh; }
+
+  /* Skip Spline viewer rendering when off-screen */
+  .nodes__visual {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
+
+  /* Partner marquee: keep the cards visible but stop the perpetual
+   * transform animation. Replace with native horizontal scroll. */
+  .partner-marquee__track--left,
+  .partner-marquee__track--right {
+    animation: none;
+    will-change: auto;
+  }
+  .partner-marquee__viewport {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .partner-marquee__rows::before,
+  .partner-marquee__rows::after { display: none; }
+
+  /* Cap reveal animation cost on slow mobile GPUs */
+  .reveal {
+    transition-duration: 0.4s !important;
+  }
+
+  /* Reduce hero-overlay gradient complexity */
+  .hero { height: 70dvh; }
+
+  /* No expensive purple-glow ring on the gateway-core box on mobile */
+  .gateway-core--active {
+    box-shadow: 0 0 40px rgba(111, 0, 255, 0.4);
+  }
+}
+
+/* Honor user OS-level data saver preference (Chrome / Edge) */
+@media (prefers-reduced-data: reduce) {
+  .hero__video { display: none; }
+  .partner-marquee__track--left,
+  .partner-marquee__track--right { animation: none; }
+}
