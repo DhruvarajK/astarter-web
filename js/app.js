@@ -1096,7 +1096,10 @@ function mountThreeScene(containerId, modelPaths, sceneOpts) {
           }
         }
       },
-      { rootMargin: "200px 0px" }
+      /* Asymmetric rootMargin: bigger on top so Three.js starts warming
+       * up earlier when user scrolls UP from below (reverse scroll). The
+       * 150ms debounce still prevents start/stop thrashing. */
+      { rootMargin: "600px 0px 200px 0px" }
     ).observe(watchEl);
   }
 

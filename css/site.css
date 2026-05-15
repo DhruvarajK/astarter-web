@@ -538,10 +538,12 @@ a {
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  /* Pin the upscaled 720p video to its own GPU layer so the browser
-   * doesn't re-rasterize it during every scroll/composite pass. */
+  /* Note: video is currently disabled via JS (display:none). When re-
+   * enabled (set ASTARTER_CONFIG.enableHeroVideo=true), the transform
+   * promotion below kicks in. will-change removed because keeping a
+   * compositor layer reserved for a permanently display:none element
+   * was pure GPU memory waste. */
   transform: translateZ(0);
-  will-change: transform;
   backface-visibility: hidden;
 }
 .hero__content {
@@ -1128,12 +1130,11 @@ a {
   position: relative;
   background: #000000;
   overflow: hidden;
-  /* Skip rendering of the Spline viewer's WebGL canvas when off-screen.
-   * Spline runs its own continuous rAF loop — this is the only safe pause.
-   * `contain: strict` adds full rendering isolation so the Spline canvas
-   * doesn't trigger layout recomputes on the rest of the page. */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 480px;
+  /* content-visibility removed — was redundant with contain:strict AND
+   * caused a paint hitch on reverse scroll (the "skipped → render"
+   * transition). Spline is already paused via visibility:hidden in JS
+   * when far offscreen; contain:strict isolates its rendering from the
+   * rest of the page. */
   contain: strict;
 }
 .nodes__visual .nodes__spline,
