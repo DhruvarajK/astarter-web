@@ -1,17 +1,18 @@
-/* Astarter — service worker v2.0
+/* Astarter — service worker v3.1
  *
  * Aggressive caching strategy for instant repeat visits + offline support:
  *   - Install:    pre-fetches the full critical shell (HTML/CSS/JS/poster/logo)
  *   - HTML:       network-first (so deployments are live immediately)
  *   - Images:     CACHE-FIRST (never refetch — they're versioned by filename)
- *   - JS/CSS:     stale-while-revalidate (instant serve, background update)
+ *   - JS/CSS:     stale-while-revalidate with ignoreSearch (versioned URLs
+ *                 like /js/app.js?v=3.1 match the unversioned precache entry)
  *   - Cross-origin: pass-through (don't cache Spline/jsDelivr — they have own CDN)
  *
  * Bump VERSION when you ship updates to bust the old cache. The SW will
  * auto-delete stale caches on activate.
  */
 
-const VERSION = "astarter-v3.0";
+const VERSION = "astarter-v3.1";
 const SHELL = `${VERSION}-shell`;   /* HTML, manifest, sw self */
 const STATIC = `${VERSION}-static`; /* JS, CSS */
 const MEDIA  = `${VERSION}-media`;  /* images, video, svg, fonts, 3D */
@@ -35,7 +36,9 @@ const PRECACHE = [
   "/assets/core-BRYOy9yX.png",
   /* Optimized SVGs (now small enough to precache) */
   "/assets/gateway-circuit.svg",
+  "/assets/gateway-lottie-1.svg",
   "/assets/gateway-lottie-2.svg",
+  "/assets/gateway-lottie-3.svg",
 ];
 
 /* ── Install: aggressively precache the shell ── */
@@ -134,14 +137,28 @@ self.addEventListener("fetch", (event) => {
   }
 
   /* ── JS / CSS: stale-while-revalidate ──
-   * Serve from cache instantly, refresh in background. */
+   * Serve from cache instantly, refresh in background.
+   *
+   * ignoreSearch: true is the critical bit — versioned requests like
+   * /css/site.css?v=3.1 match the precache entry stored under /css/site.css
+   * (no query). Without this, the entire JS/CSS precache benefit was
+   * silently dead: cache had the file, but cache.match couldn't find it
+   * because the query string didn't match.
+   *
+   * We also normalise the put key (strip query) so the cache never
+   * accumulates duplicate entries across version bumps. */
   if (isScript(url, req.destination)) {
     event.respondWith(
       caches.open(STATIC).then((cache) =>
-        cache.match(req).then((cached) => {
+        cache.match(req, { ignoreSearch: true }).then((cached) => {
           const network = fetch(req)
             .then((res) => {
-              if (res && res.status === 200) cache.put(req, res.clone());
+              if (res && res.status === 200) {
+                /* Store under the path WITHOUT query so future versioned
+                 * URLs match the same cache entry. */
+                const keyUrl = url.origin + url.pathname;
+                cache.put(keyUrl, res.clone());
+              }
               return res;
             })
             .catch(() => cached);

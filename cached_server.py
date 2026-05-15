@@ -42,6 +42,12 @@ FINGERPRINTED = re.compile(r"-[A-Za-z0-9_]{6,}\.(js|css|png|jpg|jpeg|webp|svg|wo
 
 
 class CachedHandler(http.server.SimpleHTTPRequestHandler):
+    # Disable directory indexing — without this, http://localhost:8080/assets/
+    # would expose a directory listing of every file in assets/.
+    def list_directory(self, path):
+        self.send_error(403, "Directory listing is disabled")
+        return None
+
     def end_headers(self):
         path = self.path.split("?")[0].split("#")[0]
         name = path.rsplit("/", 1)[-1].lower()
@@ -68,12 +74,30 @@ class CachedHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_header("Cache-Control", f"public, max-age={HOUR}")
 
-        # Security & performance headers
+        # Security headers — mirror what a CDN/reverse-proxy should send in prod
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
-        # Allow service worker installation from /
-        if name == "sw.js":
-            pass  # handled above
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Permissions-Policy",
+                         "geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()")
+        # CSP matches the meta-tag in index.html (defense-in-depth — header
+        # takes effect earlier than the meta tag during HTML parsing).
+        # Skip for sw.js because Chromium rejects SWs that don't pass their
+        # own response through unmodified.
+        if name != "sw.js":
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; "
+                "style-src 'self' 'unsafe-inline'; "
+                "img-src 'self' data: blob:; "
+                "font-src 'self'; "
+                "connect-src 'self' https://prod.spline.design https://dl.polyhaven.org https://cdn.jsdelivr.net https://unpkg.com; "
+                "frame-ancestors 'none'; "
+                "base-uri 'self'; "
+                "form-action 'self'; "
+                "object-src 'none'"
+            )
         super().end_headers()
 
 
@@ -85,11 +109,13 @@ class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     allow_reuse_address = True  # restart cleanly after Ctrl+C
 
 
-def run(port=8080):
+def run(port=8080, host="127.0.0.1"):
     os.chdir(Path(__file__).parent)
-    with ThreadingHTTPServer(("", port), CachedHandler) as httpd:
-        print(f"Astarter cached server (threaded) running at http://localhost:{port}/")
-        print("HTTP cache headers active — repeat visits will be near-instant.")
+    with ThreadingHTTPServer((host, port), CachedHandler) as httpd:
+        bind_label = "localhost" if host == "127.0.0.1" else host
+        print(f"Astarter cached server (threaded) running at http://{bind_label}:{port}/")
+        print(f"Bound to {host} (use --host 0.0.0.0 to expose to your LAN — only do this for mobile testing).")
+        print("HTTP cache headers + CSP active. Directory listing disabled.")
         print("Press Ctrl+C to stop.")
         try:
             httpd.serve_forever()
@@ -98,5 +124,12 @@ def run(port=8080):
 
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
-    run(port)
+    # Simple CLI: python cached_server.py [PORT] [--host HOST]
+    args = sys.argv[1:]
+    host = "127.0.0.1"
+    if "--host" in args:
+        i = args.index("--host")
+        host = args[i + 1]
+        del args[i:i + 2]
+    port = int(args[0]) if args else 8080
+    run(port=port, host=host)

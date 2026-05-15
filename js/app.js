@@ -355,6 +355,10 @@ function initNav() {
   function setOpen(open) {
     burger?.classList.toggle("is-open", open);
     drawer?.classList.toggle("is-open", open);
+    /* Keep the burger's accessible state in sync so screen readers
+     * announce "Open menu, collapsed" / "expanded" correctly. */
+    burger?.setAttribute("aria-expanded", String(!!open));
+    burger?.setAttribute("aria-label", open ? "Close menu" : "Open menu");
   }
 
   if (burger && drawer) {
@@ -366,11 +370,16 @@ function initNav() {
     });
   }
 
+  /* Submenu toggle — works on every viewport size so keyboard users on
+   * desktop can open submenus (previously a `window.innerWidth > 900`
+   * early-return left desktop dropdowns hover-only, which made the 14
+   * submenu links keyboard-unreachable). The CSS rule `.site-nav__item:
+   * focus-within .site-nav__sub` provides keyboard parity with :hover so
+   * Tab also reveals the menu without needing a click. */
   document.querySelectorAll(".site-nav__item--has-sub").forEach((item) => {
     const trigger = item.querySelector(".site-nav__trigger");
     if (!trigger) return;
     trigger.addEventListener("click", (e) => {
-      if (window.innerWidth > 900) return;
       e.preventDefault();
       const open = item.classList.contains("is-open");
       document.querySelectorAll(".site-nav__item--has-sub.is-open").forEach((el) => {
@@ -381,6 +390,17 @@ function initNav() {
       });
       item.classList.toggle("is-open", !open);
       trigger.setAttribute("aria-expanded", String(!open));
+    });
+  });
+
+  /* Escape key closes any open submenu and returns focus to its trigger */
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    document.querySelectorAll(".site-nav__item--has-sub.is-open").forEach((item) => {
+      item.classList.remove("is-open");
+      const t = item.querySelector(".site-nav__trigger");
+      t?.setAttribute("aria-expanded", "false");
+      t?.focus();
     });
   });
 
@@ -497,8 +517,15 @@ function initAboxScroll() {
       if (state.idx === lastIdx) return;
       lastIdx = state.idx;
       for (let i = 0; i < n; i++) {
-        panels[i].classList.toggle("abox-panel--active", i === state.idx);
-        if (dots[i]) dots[i].classList.toggle("abox__dot--active", i === state.idx);
+        const isActive = i === state.idx;
+        panels[i].classList.toggle("abox-panel--active", isActive);
+        /* Toggle aria-hidden so screen readers only announce the active
+         * panel — previously SR users heard all 6 versions stacked. */
+        panels[i].setAttribute("aria-hidden", String(!isActive));
+        if (dots[i]) {
+          dots[i].classList.toggle("abox__dot--active", isActive);
+          dots[i].setAttribute("aria-current", isActive ? "true" : "false");
+        }
       }
     }
   );
@@ -1129,12 +1156,18 @@ function mountThreeScene(containerId, modelPaths, sceneOpts) {
   }
   resize();
   new ResizeObserver(resize).observe(wrap);
+  /* Hoisted ABOVE the startRenderLoop() call below — these `let` bindings
+   * are read by startRenderLoop via the function declaration's closure.
+   * If the page runs on a browser without IntersectionObserver (rare but
+   * possible), `isInView` stays true from line 1103 and we'd call
+   * startRenderLoop() while `_running` is still in its temporal dead zone,
+   * throwing a ReferenceError. Hoisting fixes that latent bug. */
+  let _rafId = 0;
+  let _running = false;
+
   /* Only run if currently in view. The IntersectionObserver above will
    * call startRenderLoop / stopRenderLoop as the section enters/leaves. */
   if (isInView) startRenderLoop();
-
-  let _rafId = 0;
-  let _running = false;
 
   /* ── Adaptive FPS throttling ──
    * Measures rolling FPS over last 60 frames. If sustained <45fps, drop
