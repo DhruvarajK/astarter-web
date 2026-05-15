@@ -11,7 +11,7 @@
  * auto-delete stale caches on activate.
  */
 
-const VERSION = "astarter-v2.9";
+const VERSION = "astarter-v3.0";
 const SHELL = `${VERSION}-shell`;   /* HTML, manifest, sw self */
 const STATIC = `${VERSION}-static`; /* JS, CSS */
 const MEDIA  = `${VERSION}-media`;  /* images, video, svg, fonts, 3D */
@@ -30,6 +30,7 @@ const PRECACHE = [
   "/assets/logo-DKIUXeE4.png",
   /* Favicon: shown in browser tab + bookmarks */
   "/assets/favicon.svg",
+  "/assets/astarter-tab-logo.png",
   /* Core image (used in gateway center) */
   "/assets/core-BRYOy9yX.png",
   /* Optimized SVGs (now small enough to precache) */
