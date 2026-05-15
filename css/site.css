@@ -2108,11 +2108,11 @@ a {
 }
 .site-footer__social a:hover,
 .site-footer__social a:focus-visible {
+  /* Subtle white-tint hover — no purple/blue color cast */
   color: #fff;
-  background: var(--purple);
-  border-color: var(--purple);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.30);
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(111, 0, 255, 0.45);
   outline: none;
 }
 .site-footer__columns {
