@@ -301,20 +301,18 @@ a {
   gap: 10px;
   cursor: pointer;
 }
-/* 与原版一致：白色剪影（用 img + filter，避免 file:// 下 mask-image 被 CORS 拦截） */
+/* Official logo from app.astarter.io — full lockup (glyph + wordmark)
+ * Filter removed so the brand gradient renders as designed. */
 .site-nav__logo-img {
-  width: 48px;
-  height: 48px;
+  width: auto;
+  height: 36px;
   flex-shrink: 0;
   object-fit: contain;
   display: block;
-  filter: brightness(0) invert(1);
 }
+/* Wordmark is already inside the new logo image — hide the duplicate text */
 .site-nav__title {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  display: none;
 }
 .site-nav__menu {
   display: flex;
@@ -561,11 +559,12 @@ a {
   .site-nav__burger {
     display: flex;
   }
-  .site-nav__title {
-    display: none;
-  }
+  /* .site-nav__title is already display:none globally now (the logo includes the wordmark) */
   .site-nav__inner {
     padding: 0 16px;
+  }
+  .site-nav__logo-img {
+    height: 30px;
   }
 }
 @media (min-width: 901px) {
@@ -2077,12 +2076,9 @@ a {
   width: auto;
   object-fit: contain;
 }
+/* Wordmark is inside the new logo image — hide the duplicate text */
 .site-footer__logo-text {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  margin-left: 10px;
+  display: none;
 }
 .site-footer__tagline {
   font-size: 1rem;
