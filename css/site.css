@@ -778,10 +778,10 @@ a {
 /* ---- ABOX ---- */
 .abox-anchor {
   position: relative;
-  /* Was 550vh originally → 280vh (too fast to read 4 panels of copy)
-   * → 400vh now. ~100vh per panel = comfortable reading time AND smooth
-   * lerping between the 6 camera shots. Mobile = 260vh below. */
-  height: 400vh;
+  /* 550vh originally → 280vh (too fast) → 400vh → 450vh.
+   * Extra 50vh slows the camera lerp slightly between the 6 ABOX shots
+   * — smoother transitions, no other side effects. Mobile stays 280vh. */
+  height: 450vh;
 }
 .abox {
   position: sticky;
