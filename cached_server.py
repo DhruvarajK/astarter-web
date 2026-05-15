@@ -80,29 +80,13 @@ class CachedHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Permissions-Policy",
                          "geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()")
-        # CSP matches the meta-tag in index.html (defense-in-depth — header
-        # takes effect earlier than the meta tag during HTML parsing).
-        # Skip for sw.js because Chromium rejects SWs that don't pass their
-        # own response through unmodified.
-        if name != "sw.js":
-            self.send_header(
-                "Content-Security-Policy",
-                "default-src 'self'; "
-                # 'wasm-unsafe-eval' lets DRACO (compressed glTF) decoder run —
-                # without it, ABOX 3D model can't decode and the section renders empty.
-                "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; "
-                # Spline viewer + DRACO both spawn Web Workers; blob: covers inline-worker URLs.
-                "worker-src 'self' blob: https://cdn.jsdelivr.net https://unpkg.com; "
-                "style-src 'self' 'unsafe-inline'; "
-                "img-src 'self' data: blob: https://cdn.jsdelivr.net; "
-                "font-src 'self'; "
-                # blob: is needed in connect-src for Three.js binary texture/buffer XHRs.
-                "connect-src 'self' blob: https://prod.spline.design https://dl.polyhaven.org https://cdn.jsdelivr.net https://unpkg.com; "
-                "frame-ancestors 'none'; "
-                "base-uri 'self'; "
-                "form-action 'self'; "
-                "object-src 'none'"
-            )
+        # NOTE: CSP removed in v3.7 — see index.html for rationale.
+        # The Spline viewer requires eval / blob: script patterns that no
+        # reasonable CSP whitelist tolerated, and production (which has
+        # NO CSP) renders Spline fine. Re-add a tested CSP once we have
+        # a known-working policy. The other security headers above still
+        # cover the bulk of the surface area (nosniff, Referrer-Policy,
+        # X-Frame-Options, Permissions-Policy).
         super().end_headers()
 
 
