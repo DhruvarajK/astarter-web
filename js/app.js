@@ -1120,9 +1120,34 @@ function mountThreeScene(containerId, modelPaths, sceneOpts) {
 
   let _rafId = 0;
   let _running = false;
+
+  /* ── Adaptive FPS throttling ──
+   * Measures rolling FPS over last 60 frames. If sustained <45fps, drop
+   * pixel ratio + disable IBL re-application + skip every other frame.
+   * If FPS recovers >55, restore. Prevents the GPU from getting stuck
+   * trying to render a too-heavy frame on weak hardware. */
+  const _frameTimes = [];
+  let _lastFrameAt = 0;
+  let _qualityLevel = "high"; // "high" or "low"
+  let _skipNextFrame = false;
+
+  function applyQuality(level) {
+    if (level === _qualityLevel) return;
+    _qualityLevel = level;
+    if (level === "low") {
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+      try { renderer.setSize(wrap.clientWidth, wrap.clientHeight, false); } catch (_) {}
+    } else {
+      renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5));
+      try { renderer.setSize(wrap.clientWidth, wrap.clientHeight, false); } catch (_) {}
+    }
+  }
+
   function startRenderLoop() {
     if (_running) return;
     _running = true;
+    _lastFrameAt = performance.now();
+    _frameTimes.length = 0;
     tick();
   }
   function stopRenderLoop() {
@@ -1135,6 +1160,30 @@ function mountThreeScene(containerId, modelPaths, sceneOpts) {
     if (!_running) return;
     _rafId = requestAnimationFrame(tick);
     if (document.hidden) return;
+
+    /* FPS tracking */
+    const now = performance.now();
+    const dt = now - _lastFrameAt;
+    _lastFrameAt = now;
+    if (dt > 0 && dt < 200) {
+      _frameTimes.push(dt);
+      if (_frameTimes.length > 60) _frameTimes.shift();
+      /* Auto-degrade / restore after rolling window full */
+      if (_frameTimes.length === 60) {
+        let sum = 0;
+        for (let i = 0; i < 60; i++) sum += _frameTimes[i];
+        const fps = 60000 / sum;
+        if (fps < 45 && _qualityLevel === "high") applyQuality("low");
+        else if (fps > 55 && _qualityLevel === "low") applyQuality("high");
+      }
+    }
+
+    /* Frame-skip if heavily degraded — render every other frame */
+    if (_qualityLevel === "low") {
+      _skipNextFrame = !_skipNextFrame;
+      if (_skipNextFrame) return;
+    }
+
     if (useScrollCamera) {
       const p = getAboxScrollProgress(scrollAreaId);
       camTarget.copy(aboxCamTarget(p));
@@ -1146,6 +1195,54 @@ function mountThreeScene(containerId, modelPaths, sceneOpts) {
   }
   /* tick is started by startRenderLoop() above, which only fires when
    * the section is actually in view. No bare tick() call here. */
+
+  /* ── Strict memory cleanup ──
+   * Three.js does NOT auto-dispose GPU resources. Without explicit dispose:
+   *   - geometries leak vertex buffer memory
+   *   - materials leak shader compilation
+   *   - textures leak GPU texture memory (HDR is 30+ MB!)
+   *   - WebGL context itself leaks until tab close
+   *
+   * We call this on beforeunload + pagehide so the GPU memory is freed
+   * before the browser context dies. Also exposed as window.__disposeAbox
+   * for manual call from DevTools if needed. */
+  function disposeScene() {
+    stopRenderLoop();
+    /* Walk the scene, dispose geometries, materials, embedded textures */
+    scene.traverse((obj) => {
+      if (obj.geometry && typeof obj.geometry.dispose === "function") {
+        obj.geometry.dispose();
+      }
+      if (obj.material) {
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        mats.forEach((m) => {
+          if (!m) return;
+          /* Dispose any textures referenced by this material */
+          for (const key in m) {
+            const v = m[key];
+            if (v && v.isTexture && typeof v.dispose === "function") {
+              v.dispose();
+            }
+          }
+          if (typeof m.dispose === "function") m.dispose();
+        });
+      }
+    });
+    /* IBL cubemap */
+    if (iblCube && typeof iblCube.dispose === "function") iblCube.dispose();
+    /* Renderer + WebGL context */
+    if (renderer) {
+      try { renderer.dispose(); } catch (_) {}
+      try { renderer.forceContextLoss && renderer.forceContextLoss(); } catch (_) {}
+      if (renderer.domElement && renderer.domElement.parentNode) {
+        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
+    }
+  }
+
+  window.__disposeAbox = disposeScene;
+  window.addEventListener("beforeunload", disposeScene, { once: true });
+  window.addEventListener("pagehide", disposeScene, { once: true });
 }
 
 function initAboxThree() {

@@ -698,7 +698,10 @@ a {
   align-items: center;
   justify-content: center;
 }
-/* 与官网画布比例接近（约 856×686）；纯黑底与 Three 场景一致，避免接缝 */
+/* ABOX canvas wrapper (Three.js scene) — fully contained.
+ * `contain: strict` (size + layout + style + paint) isolates the canvas
+ * from the rest of the page's render pipeline. Without this, Chrome
+ * recomputes the canvas's layout context on every parent change. */
 .abox__canvas-wrap {
   width: 100%;
   aspect-ratio: 856 / 686;
@@ -706,6 +709,7 @@ a {
   position: relative;
   background: #040404;
   overflow: hidden;
+  contain: strict;
 }
 .abox__dots {
   display: none;
@@ -1124,9 +1128,12 @@ a {
   background: #000000;
   overflow: hidden;
   /* Skip rendering of the Spline viewer's WebGL canvas when off-screen.
-   * Spline runs its own continuous rAF loop — this is the only safe pause. */
+   * Spline runs its own continuous rAF loop — this is the only safe pause.
+   * `contain: strict` adds full rendering isolation so the Spline canvas
+   * doesn't trigger layout recomputes on the rest of the page. */
   content-visibility: auto;
   contain-intrinsic-size: auto 480px;
+  contain: strict;
 }
 .nodes__visual .nodes__spline,
 .nodes__visual spline-viewer {
