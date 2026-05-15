@@ -113,7 +113,7 @@
     <link rel="preload" href="assets/fonts/Poppins-700.ttf" as="font" type="font/ttf" crossorigin />
 
     <!-- ── Critical styles ── -->
-    <link rel="stylesheet" href="css/site.css?v=3.4" />
+    <link rel="stylesheet" href="css/site.css?v=3.5" />
 
     <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ── -->
     <link rel="preload" href="assets/hero-poster.webp" as="image" type="image/webp" />
@@ -425,20 +425,27 @@
         <div class="nodes__visual">
           <!-- 官网此处为 Spline Viewer（非第二个 glb）；内部 canvas 约 372×372 缓冲区分辨率 -->
           <!--
-            Note: NO `loading="lazy"` attribute. The spline-lazy-bootstrap
-            script already defers the viewer MODULE import until the section
-            is near viewport — adding loading="lazy" here too caused a
-            double-defer where the canvas was created with `visibility: hidden`
-            and the scene was never fetched. Removing this attribute makes
-            the scene load as soon as the viewer module mounts.
+            Mirror of production (http://45.207.194.194/) — bare-minimum
+            attributes only. Lessons learned:
+            • NO `loading="lazy"`: double-defer (the bootstrap already lazy-
+              loads the module) left the canvas at visibility:hidden forever.
+            • NO `background="#000000"`: that sets the WebGL CLEAR colour
+              and made the entire scene render as a pure black box. The
+              page bg is already #040404 so a transparent canvas works.
+            • NO `role="img"` on the custom element — Spline's runtime
+              checks attributes and the implicit role override interferes
+              with its internal rendering bootstrap on some Chromium builds.
+            Accessibility for the scene is provided by the surrounding
+            section's eyebrow ("Nodes") + h2 ("Become a Network Operator"),
+            which screen-readers announce. The spline-viewer itself is
+            marked aria-hidden so SR users aren't told there's an empty
+            interactive element they can't operate.
           -->
           <spline-viewer
             id="nodes-spline-viewer"
             class="nodes__spline"
             url="https://prod.spline.design/jaN1x7CFhOATFBGd/scene.splinecode"
-            background="#000000"
-            role="img"
-            aria-label="3D animation of an A-Core Node — the virtual infrastructure of the ASTARTER network"
+            aria-hidden="true"
           ></spline-viewer>
         </div>
         <div class="nodes__content">
@@ -773,7 +780,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js" integrity="sha384-TNRcLasZnnfIJJskDY5XlrfmsKTjBSy98MtyLuX+3rQWRbpSQvtFIdikNpcOh3SN" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js" integrity="sha384-fljlqkjWlmSFjkESkQvm77heIZpoWmXEOzlCA7kOpGUH+95Zk0yGfQieWM2q136E" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js" integrity="sha384-brr1wFCScwAi+SbB5QEzZ6kd5yjKCrFmRuUqxbw0XQSElYZz7XPg9+lVO8jdV0yX" crossorigin="anonymous"></script>
-    <script defer src="js/app.js?v=3.4"></script>
+    <script defer src="js/app.js?v=3.5"></script>
 
     <!-- ── JSON-LD structured data ── -->
     <script type="application/ld+json">

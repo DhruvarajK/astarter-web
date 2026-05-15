@@ -2278,11 +2278,13 @@ a {
   .story { height: 100vh; }
   .abox-anchor { height: 280vh; }
 
-  /* Skip Spline viewer rendering when off-screen */
-  .nodes__visual {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 480px;
-  }
+  /* DO NOT add `content-visibility: auto` on .nodes__visual.
+   * Spline viewer runs its own IntersectionObserver to decide when to
+   * unhide its canvas; if the parent has content-visibility:auto the
+   * canvas's bounding rect appears off-screen forever to Spline's IO
+   * and the scene never finishes initialising → user sees an empty
+   * black box. The IntersectionObserver pause in js/app.js already
+   * gives us the off-screen perf benefit without this side effect. */
 
   /* Partner marquee: keep the cards visible but stop the perpetual
    * transform animation. Replace with native horizontal scroll. */
