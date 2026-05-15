@@ -105,20 +105,33 @@
 
     <!-- ── Performance: connections (only kept for required externals) ── -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
     <link rel="dns-prefetch" href="https://prod.spline.design" />
-    <link rel="dns-prefetch" href="https://unpkg.com" />
 
     <!-- ── Fonts: SELF-HOSTED via @font-face in site.css ──
          (was Google Fonts + Typekit — those add ~200ms of 3rd-party
-         render-blocking in Brave because Shields scrutinize each request) -->
+         render-blocking in Brave because Shields scrutinize each request)
+         Poppins-400 is the body weight (used everywhere) — preloading it
+         prevents the visible re-flow when web fonts swap in. -->
+    <link rel="preload" href="assets/fonts/Poppins-400.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="assets/fonts/Poppins-600.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="assets/fonts/Poppins-700.ttf" as="font" type="font/ttf" crossorigin />
 
     <!-- ── Critical styles ── -->
     <link rel="stylesheet" href="css/site.css?v=3.9" />
 
-    <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ── -->
-    <link rel="preload" href="assets/hero-poster.webp" as="image" type="image/webp" />
+    <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ──
+         fetchpriority="high" hints to the browser this is THE LCP candidate
+         and should jump the queue. Saves ~100-200ms on first paint. -->
+    <link rel="preload" href="assets/hero-poster.webp" as="image" type="image/webp" fetchpriority="high" />
+
+    <!-- ── Preload our own JS modules so the browser starts fetching them
+         in parallel with CSS parsing, instead of waiting until it sees the
+         <script> tags at the end of <body>. These are NOT execution hints —
+         they're just download hints. The actual execution still happens
+         where the <script> tags say. -->
+    <link rel="modulepreload" href="js/spline-lazy-bootstrap.js" />
+    <link rel="preload" href="js/app.js?v=3.9" as="script" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
