@@ -492,8 +492,12 @@ a {
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  width: 24px;
-  height: 18px;
+  /* 44×44 tap target per Apple HIG. Visible icon (the three lines) is
+   * still 24×18 — centered inside the button via inner padding. */
+  width: 44px;
+  height: 44px;
+  padding: 13px 10px;
+  box-sizing: border-box;
   cursor: pointer;
   z-index: 1001;
   background: none;
@@ -926,6 +930,7 @@ a {
     padding: 10px 0 4px;
   }
   .abox__dot {
+    /* Apple HIG 44×44 tap target via pseudo-element; visible dot stays 8×8 */
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -933,6 +938,16 @@ a {
     cursor: pointer;
     border: none;
     padding: 0;
+    position: relative;
+  }
+  .abox__dot::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
   }
   .abox__dot--active {
     background: #fff;
@@ -1948,6 +1963,9 @@ a {
   align-items: center;
 }
 .news__dot {
+  /* Visible dot stays 6×6 — visual layout unchanged.
+   * Apple HIG 44×44 tap target achieved via ::before pseudo-element
+   * that extends the hit-test area without affecting layout. */
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -1955,7 +1973,18 @@ a {
   border: none;
   padding: 0;
   cursor: pointer;
+  position: relative;
   transition: background 0.2s, transform 0.2s;
+}
+.news__dot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  /* transparent — just expands the clickable hit area */
 }
 .news__dot--active {
   background: var(--purple);
@@ -2149,8 +2178,9 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  /* Apple HIG 44×44 minimum tap target */
+  width: 44px;
+  height: 44px;
   margin: 0;
   border-radius: 50%;
   color: rgba(255, 255, 255, 0.85);
