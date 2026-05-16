@@ -69,6 +69,42 @@ html {
   --purple-hover: #8807ff;
   --bg: #040404;
   --font: Poppins, system-ui, sans-serif;
+
+  /* ── Design-token typography scale ─────────────────────────────────
+   * Single source of truth for type sizes across every section.
+   * Override per-breakpoint via the @media block below — every rule
+   * that uses these tokens automatically scales.
+   * ──────────────────────────────────────────────────────────────── */
+  --fs-hero:      3rem;       /* hero title */
+  --fs-section:   3rem;       /* every main section h2 (Nodes/Tokenomics/etc.) */
+  --fs-subsec:    2rem;       /* smaller titles (subscribe form, news mobile) */
+  --fs-card:      1.5rem;     /* card h3 (gateway cards, news cards) */
+  --fs-body:      1rem;       /* default paragraph */
+  --fs-eyebrow:   0.8rem;     /* uppercase eyebrow above each section title */
+  --fs-meta:      0.85rem;    /* dates, descriptions, captions */
+
+  --fw-normal:    400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+  --fw-bold:      700;
+  --fw-extrabold: 800;
+
+  --lh-tight:     1.2;        /* headings */
+  --lh-snug:      1.3;
+  --lh-normal:    1.5;        /* body */
+  --lh-relaxed:   1.75;       /* long-form copy */
+
+  --ls-eyebrow:   0.2em;      /* uppercase eyebrow letter-spacing */
+  --ls-tight:    -0.015em;
+}
+
+/* Responsive scale: titles shrink on mobile to avoid hero-text wrap-orphans */
+@media (max-width: 768px) {
+  :root {
+    --fs-hero:    2rem;
+    --fs-section: 2rem;
+    --fs-subsec:  1.5rem;
+  }
 }
 
 *,
@@ -710,11 +746,11 @@ a {
   gap: 16px;
 }
 .hero__title {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-bold);
   color: #fff;
   margin: 0;
-  line-height: 1.2;
+  line-height: var(--lh-tight);
 }
 .hero__subtitle {
   font-size: 1rem;
@@ -1294,19 +1330,38 @@ a {
   opacity: 1;
   transform: translateY(0);
 }
-.nodes__eyebrow {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+/* Unified section eyebrow — purple uppercase tag above each section title. */
+.nodes__eyebrow,
+.tokenomics__eyebrow,
+.partner-marquee__eyebrow,
+.roadmap__eyebrow,
+.news__eyebrow {
+  font-size: var(--fs-eyebrow);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-eyebrow);
   text-transform: uppercase;
   color: var(--purple);
+  margin: 0 0 12px;
+}
+.nodes__eyebrow {
+  /* nodes layout handles spacing on the parent .nodes__head, so no
+   * margin-bottom needed here (would double up otherwise) */
+  margin: 0;
+}
+/* Unified section-title baseline. Each section's __title only adds
+ * section-specific overrides (e.g. tokenomics adds margin-bottom). */
+.nodes__title,
+.tokenomics__title,
+.partner-marquee__title,
+.roadmap__title,
+.news__title {
+  font-size: var(--fs-section);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
   margin: 0;
 }
 .nodes__title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
+  /* section-specific overrides go here, if any */
 }
 .nodes__subtitle {
   font-size: 1rem;
@@ -1341,9 +1396,7 @@ a {
     padding: 0 16px;
     gap: 24px;
   }
-  .nodes__title {
-    font-size: 2rem;
-  }
+  /* .nodes__title mobile size now via --fs-section in :root */
 }
 
 /* ---- Tokenomics ---- */
@@ -1378,17 +1431,11 @@ a {
   transform: translateY(0);
 }
 .tokenomics__eyebrow {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin: 0 0 12px;
+  /* inherits from the consolidated eyebrow rule */
 }
 .tokenomics__title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0 0 12px;
+  /* base font-size/weight/lh/margin from the consolidated rule above */
+  margin: 0 0 12px;  /* leaves 12px before .tokenomics__sub */
 }
 .tokenomics__sub {
   font-size: 1rem;
@@ -1510,9 +1557,7 @@ a {
   .tokenomics {
     padding: 40px 0;
   }
-  .tokenomics__title {
-    font-size: 2rem;
-  }
+  /* .tokenomics__title mobile size now via --fs-section in :root */
   .tokenomics__body {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -1544,17 +1589,10 @@ a {
   transform: translateY(0);
 }
 .partner-marquee__eyebrow {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin: 0 0 12px;
+  /* inherits from the consolidated eyebrow rule */
 }
 .partner-marquee__title {
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0;
+  /* inherits from the consolidated section-title rule above */
 }
 .partner-marquee__rows {
   display: flex;
@@ -1643,9 +1681,7 @@ a {
   .partner-marquee {
     padding: 40px 0;
   }
-  .partner-marquee__title {
-    font-size: 2rem;
-  }
+  /* .partner-marquee__title mobile size now via --fs-section in :root */
 }
 
 /* ---- Roadmap ---- */
@@ -1679,18 +1715,11 @@ a {
   transform: translateY(0);
 }
 .roadmap__eyebrow {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin: 0 0 12px;
+  /* inherits from the consolidated eyebrow rule */
 }
 .roadmap__title {
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1.3;
-  margin: 0;
+  /* inherits from the consolidated section-title rule above
+   * (was line-height: 1.3, normalised to 1.2 to match other sections) */
 }
 .roadmap__timeline {
   display: flex;
@@ -1802,9 +1831,7 @@ a {
   .roadmap__head.reveal {
     position: static;
   }
-  .roadmap__title {
-    font-size: 2rem;
-  }
+  /* .roadmap__title mobile size now via --fs-section in :root */
   .roadmap__line-track {
     margin-right: 24px;
   }
@@ -1842,18 +1869,11 @@ a {
   transform: translateY(0);
 }
 .news__eyebrow {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin: 0 0 12px;
+  /* inherits from the consolidated eyebrow rule */
 }
 .news__title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
+  /* inherits from the consolidated section-title rule above
+   * (was 2.5rem, now 3rem to match every other section) */
 }
 .news__desktop {
   display: block;
@@ -1973,9 +1993,8 @@ a {
   .news .container {
     padding: 0 16px;
   }
-  .news__title {
-    font-size: 1.75rem;
-  }
+  /* .news__title mobile size now via --fs-section in :root
+   * (was 1.75rem, now 2rem to match every other section on mobile) */
   .news__desktop {
     display: none;
   }
@@ -2035,8 +2054,8 @@ a {
   transform: translateY(0);
 }
 .subscribe__title {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: var(--fs-subsec);
+  font-weight: var(--fw-bold);
   margin: 0 0 0.5rem;
   color: #fff;
 }
