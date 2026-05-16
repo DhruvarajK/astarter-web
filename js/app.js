@@ -1387,6 +1387,7 @@ function initAboxWhenVisible() {
  * Visible indicator in bottom-left corner (dot color shows current level).
  * ──────────────────────────────────────────────────────────────────── */
 (function perfAutoFallback() {
+  return; // Disabled by user request to allow more resources for 3D rendering
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
   const url = new URL(window.location.href);
