@@ -604,7 +604,13 @@ a {
 .hero {
   position: relative;
   width: 100%;
+  /* 90dvh tracks the dynamic viewport — adjusts when iOS Safari shows /
+   * hides its URL bar, and when the user rotates the device. min-height
+   * is a safety floor so on extremely short viewports (e.g. some Android
+   * keyboards open, or unusual split-screen) the hero never collapses
+   * to a sliver. */
   height: 90dvh;
+  min-height: 480px;
   overflow: hidden;
   background: #040404;
 }
@@ -729,16 +735,30 @@ a {
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .hero__title {
-    font-size: 2.4rem;
-  }
+  /* .hero__title font-size now driven by --fs-hero token (2rem at <768)
+   * defined in :root @media block. Hardcoded 2.4rem override removed. */
   .hero__content {
     padding: 0 16px;
   }
 }
-@media (max-width: 480px) {
+/* Landscape-phone safety: when a phone is rotated to landscape, the
+ * viewport height collapses to ~375px. 70dvh of that = 263px, which is
+ * too short to display the hero title + subtitle + CTA. Force a sensible
+ * minimum so content never overlaps or clips. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hero {
+    height: 100dvh;
+    min-height: 360px;
+  }
   .hero__title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+  .hero__subtitle {
+    font-size: 0.9rem;
+  }
+  .hero__content {
+    gap: 12px;
+    padding: 0 16px;
   }
 }
 
