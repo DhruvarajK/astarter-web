@@ -1206,6 +1206,18 @@ a {
     padding-top: 5vh;
     height: 100vh;
   }
+  /* On mobile, cards are tall narrow rectangles (55vw wide × 100vh tall).
+   * The desktop `justify-content: flex-start` left-aligns the icon, which
+   * looks fine when cards are square on desktop but pushes the icon into
+   * the top-left corner on these tall mobile cards. Center it here. */
+  .gateway-card__icon {
+    justify-content: center;
+  }
+  .gateway-card__icon svg,
+  .gateway-card__icon .gateway-card__media {
+    max-width: 70%;
+    max-height: 50%;
+  }
   .gateway-card__body p {
     display: none;
   }
