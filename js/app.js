@@ -951,7 +951,10 @@ function prepareMiniPcTemplateOnce() {
         (gltf) => {
           const m = gltf.scene;
           m.traverse((ch) => {
-            if (ch.isMesh) ch.frustumCulled = true;
+            if (ch.isMesh) {
+              // CPU optimization: don't calculate culling since the MiniPC is always fully in view
+              ch.frustumCulled = false;
+            }
           });
           const box = new THREE.Box3().setFromObject(m);
           const size = new THREE.Vector3();
@@ -992,15 +995,16 @@ function mountThreeScene(containerId, modelPaths, sceneOpts) {
   cam.lookAt(0, 0, 0);
 
   const renderer = new THREE.WebGLRenderer({
-    antialias: !isMobile,
+    antialias: false, // Turn off antialiasing for significant performance boost on low-end
     alpha: true,
-    powerPreference: isMobile ? "low-power" : "default",
+    powerPreference: "low-power", // Best for low-end/mobile devices to manage battery and heat
     stencil: false,
     depth: true,
   });
-  /* DPR cap: was 2 (forces 4x pixels on Retina) → now 1.5 desktop / 1 mobile.
-   * Visual diff is nearly invisible, GPU work drops ~44% on Retina. */
-  renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5));
+  /* DPR cap: was 1.5 desktop / 1 mobile. Now 1.25 desktop / 1 mobile for further GPU optimization.
+   * Visual diff is nearly invisible, GPU work drops significantly. */
+  renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.25));
+
   renderer.setClearColor(0x000000, 0);
   renderer.physicallyCorrectLights = true;
   renderer.shadowMap.enabled = false;
