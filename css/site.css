@@ -274,6 +274,12 @@ a {
   z-index: 1000;
   width: 100%;
   height: 80px;
+  /* iPhone notch / Dynamic Island safe-area handling. Adds extra top
+   * padding only on devices that report a non-zero safe-area-inset-top
+   * (iPhone X+, iPad in some orientations). Desktop unaffected. */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   background: transparent;
   border-bottom: 1px solid transparent;
   transition:
@@ -486,8 +492,12 @@ a {
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  width: 24px;
-  height: 18px;
+  /* 44×44 tap target per Apple HIG. Visible icon (the three lines) is
+   * still 24×18 — centered inside the button via inner padding. */
+  width: 44px;
+  height: 44px;
+  padding: 13px 10px;
+  box-sizing: border-box;
   cursor: pointer;
   z-index: 1001;
   background: none;
@@ -594,7 +604,13 @@ a {
 .hero {
   position: relative;
   width: 100%;
+  /* 90dvh tracks the dynamic viewport — adjusts when iOS Safari shows /
+   * hides its URL bar, and when the user rotates the device. min-height
+   * is a safety floor so on extremely short viewports (e.g. some Android
+   * keyboards open, or unusual split-screen) the hero never collapses
+   * to a sliver. */
   height: 90dvh;
+  min-height: 480px;
   overflow: hidden;
   background: #040404;
 }
@@ -719,16 +735,30 @@ a {
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .hero__title {
-    font-size: 2.4rem;
-  }
+  /* .hero__title font-size now driven by --fs-hero token (2rem at <768)
+   * defined in :root @media block. Hardcoded 2.4rem override removed. */
   .hero__content {
     padding: 0 16px;
   }
 }
-@media (max-width: 480px) {
+/* Landscape-phone safety: when a phone is rotated to landscape, the
+ * viewport height collapses to ~375px. 70dvh of that = 263px, which is
+ * too short to display the hero title + subtitle + CTA. Force a sensible
+ * minimum so content never overlaps or clips. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hero {
+    height: 100dvh;
+    min-height: 360px;
+  }
   .hero__title {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+  .hero__subtitle {
+    font-size: 0.9rem;
+  }
+  .hero__content {
+    gap: 12px;
+    padding: 0 16px;
   }
 }
 
@@ -741,7 +771,10 @@ a {
   background: var(--bg);
 }
 .story__sticky {
+  /* 100vh on iOS Safari ignores the URL bar — content gets cut off
+   * by the bottom chrome. 100dvh tracks the actual visible viewport. */
   height: 100vh;
+  height: 100dvh;
   position: sticky;
   top: 0;
   display: flex;
@@ -917,6 +950,7 @@ a {
     padding: 10px 0 4px;
   }
   .abox__dot {
+    /* Apple HIG 44×44 tap target via pseudo-element; visible dot stays 8×8 */
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -924,6 +958,16 @@ a {
     cursor: pointer;
     border: none;
     padding: 0;
+    position: relative;
+  }
+  .abox__dot::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
   }
   .abox__dot--active {
     background: #fff;
@@ -1009,7 +1053,9 @@ a {
   grid-template-rows: 1fr;
   gap: var(--stack-gap);
   justify-content: center;
+  /* Use dynamic viewport height — fixes iOS Safari URL bar cutoff */
   height: 100vh;
+  height: 100dvh;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -1218,6 +1264,7 @@ a {
     justify-content: center;
     padding-top: 5vh;
     height: 100vh;
+    height: 100dvh;
   }
   /* On mobile, cards are tall narrow rectangles (55vw wide × 100vh tall).
    * The desktop `justify-content: flex-start` left-aligns the icon, which
@@ -1289,6 +1336,16 @@ a {
   width: 100%;
   height: 100%;
   min-height: 240px;
+  /* Force the system's default cursor over the Spline viewer. By
+   * default the Spline runtime injects grab/grabbing cursors when the
+   * user hovers/drags the 3D canvas. Since our scene isn't meant to
+   * be user-rotated, the grab cursor was misleading. Default cursor
+   * everywhere keeps the experience consistent across all devices. */
+  cursor: default;
+}
+.nodes__visual spline-viewer canvas,
+.nodes__visual spline-viewer * {
+  cursor: default !important;
 }
 .nodes__content {
   flex: 1 1 50%;
@@ -1949,6 +2006,9 @@ a {
   align-items: center;
 }
 .news__dot {
+  /* Visible dot stays 6×6 — visual layout unchanged.
+   * Apple HIG 44×44 tap target achieved via ::before pseudo-element
+   * that extends the hit-test area without affecting layout. */
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -1956,7 +2016,18 @@ a {
   border: none;
   padding: 0;
   cursor: pointer;
+  position: relative;
   transition: background 0.2s, transform 0.2s;
+}
+.news__dot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  /* transparent — just expands the clickable hit area */
 }
 .news__dot--active {
   background: var(--purple);
@@ -2058,7 +2129,9 @@ a {
   border: none;
   background: transparent;
   color: #000;
-  font-size: 0.9rem;
+  /* 16px minimum prevents iOS Safari from auto-zooming into the input
+   * on focus (any input < 16px triggers it). 1rem = 16px by default. */
+  font-size: 1rem;
 }
 .subscribe__input::placeholder {
   color: #a6a6a6;
@@ -2148,8 +2221,9 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  /* Apple HIG 44×44 minimum tap target */
+  width: 44px;
+  height: 44px;
   margin: 0;
   border-radius: 50%;
   color: rgba(255, 255, 255, 0.85);
@@ -2301,7 +2375,8 @@ a {
 
   /* Sticky sections: shorter than desktop, but enough to read the 4
    * ABOX panels of copy at mobile reading pace. */
-  .story { height: 100vh; }
+  /* dvh tracks the visible viewport (iOS Safari URL bar safe) */
+  .story { height: 100vh; height: 100dvh; }
   .abox-anchor { height: 280vh; }
 
   /* DO NOT add `content-visibility: auto` on .nodes__visual.

@@ -1522,8 +1522,12 @@ function initAboxWhenVisible() {
     });
   }
 
-  /* Small indicator dot bottom-left so the user/dev can see if perf-mode
-   * is active. Click to manually escalate to the next level. */
+  /* Small indicator dot bottom-left — DEV-ONLY tool.
+   * Only renders when ?perf, ?lite, or ?fps URL param is present.
+   * Was looking like a "stray round cursor" to users in production,
+   * which is the opposite of what a UX indicator should do. The auto-
+   * fallback itself still runs and engages perf/lite-mode whenever
+   * thresholds hit; it's just invisible by default now. */
   let indicator = null;
   function updateIndicator() {
     if (!indicator) return;
@@ -1533,6 +1537,11 @@ function initAboxWhenVisible() {
     indicator.textContent = labels[level];
   }
   function buildIndicator() {
+    /* Skip unless a debug URL param is present */
+    const debug = url.searchParams.has("perf") ||
+                  url.searchParams.has("lite") ||
+                  url.searchParams.has("fps");
+    if (!debug) return;
     indicator = document.createElement("div");
     indicator.style.cssText =
       "position:fixed;bottom:10px;left:10px;z-index:99998;" +
