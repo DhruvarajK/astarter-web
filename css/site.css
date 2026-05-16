@@ -2022,12 +2022,9 @@ a {
   overflow: hidden;
   position: relative;
   contain: layout style;
-  /* Sits between news and footer — animation-free, fixed-ish height.
-   * Skipping it during mid-page scroll frees compositor work for
-   * whatever IS in view. The .subscribe__bg layer is already display:none
-   * so no decorative blur to worry about on first paint-in. */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 420px;
+  /* NOTE: content-visibility:auto was removed — caused a visible paint
+   * hitch when scrolling INTO this section after passing Roadmap. The
+   * theoretical mid-page-scroll win wasn't worth the in-view jank. */
 }
 .subscribe .container {
   max-width: 1600px;
@@ -2122,13 +2119,8 @@ a {
   padding: 5rem 0 2rem;
   font-family: var(--font);
   contain: layout style;
-  /* Skip painting the footer entirely until it's about to enter the
-   * viewport. Footer has no animations, fixed height, and is the literal
-   * last section — so reverse-scroll cost is minimal but mid-page scroll
-   * gets back the compositor cycles otherwise spent compositing 4 footer
-   * columns + 6 social icon SVGs. */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
+  /* NOTE: content-visibility:auto was removed — same reason as .subscribe.
+   * Caused paint hitches when scrolling into the footer. */
 }
 .site-footer__top {
   display: flex;
