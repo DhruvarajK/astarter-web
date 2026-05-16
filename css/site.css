@@ -2080,6 +2080,13 @@ a {
   padding: 5rem 0 2rem;
   font-family: var(--font);
   contain: layout style;
+  /* Skip painting the footer entirely until it's about to enter the
+   * viewport. Footer has no animations, fixed height, and is the literal
+   * last section — so reverse-scroll cost is minimal but mid-page scroll
+   * gets back the compositor cycles otherwise spent compositing 4 footer
+   * columns + 6 social icon SVGs. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 .site-footer__top {
   display: flex;
