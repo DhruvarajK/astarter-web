@@ -274,6 +274,12 @@ a {
   z-index: 1000;
   width: 100%;
   height: 80px;
+  /* iPhone notch / Dynamic Island safe-area handling. Adds extra top
+   * padding only on devices that report a non-zero safe-area-inset-top
+   * (iPhone X+, iPad in some orientations). Desktop unaffected. */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   background: transparent;
   border-bottom: 1px solid transparent;
   transition:
@@ -741,7 +747,10 @@ a {
   background: var(--bg);
 }
 .story__sticky {
+  /* 100vh on iOS Safari ignores the URL bar — content gets cut off
+   * by the bottom chrome. 100dvh tracks the actual visible viewport. */
   height: 100vh;
+  height: 100dvh;
   position: sticky;
   top: 0;
   display: flex;
@@ -1009,7 +1018,9 @@ a {
   grid-template-rows: 1fr;
   gap: var(--stack-gap);
   justify-content: center;
+  /* Use dynamic viewport height — fixes iOS Safari URL bar cutoff */
   height: 100vh;
+  height: 100dvh;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -1204,6 +1215,7 @@ a {
     justify-content: center;
     padding-top: 5vh;
     height: 100vh;
+    height: 100dvh;
   }
   /* On mobile, cards are tall narrow rectangles (55vw wide × 100vh tall).
    * The desktop `justify-content: flex-start` left-aligns the icon, which
@@ -2045,7 +2057,9 @@ a {
   border: none;
   background: transparent;
   color: #000;
-  font-size: 0.9rem;
+  /* 16px minimum prevents iOS Safari from auto-zooming into the input
+   * on focus (any input < 16px triggers it). 1rem = 16px by default. */
+  font-size: 1rem;
 }
 .subscribe__input::placeholder {
   color: #a6a6a6;
@@ -2288,7 +2302,8 @@ a {
 
   /* Sticky sections: shorter than desktop, but enough to read the 4
    * ABOX panels of copy at mobile reading pace. */
-  .story { height: 100vh; }
+  /* dvh tracks the visible viewport (iOS Safari URL bar safe) */
+  .story { height: 100vh; height: 100dvh; }
   .abox-anchor { height: 280vh; }
 
   /* DO NOT add `content-visibility: auto` on .nodes__visual.
