@@ -1339,9 +1339,14 @@ a {
   background: var(--bg);
   padding: 100px 0;
   overflow: hidden;
-  /* Removed content-visibility — paints the donut SVG once, then cached.
-   * Avoids the re-paint cost on every reverse-scroll. */
   contain: layout style;
+  /* Skip painting until near viewport. The donut SVG is heavy (6 paths +
+   * stroke + pointer event listeners), so when user is scrolling mid-page
+   * past hero/ABOX/Nodes, NOT compositing this section pays back the
+   * re-paint cost on scroll-in. Reverse-scroll back into this section
+   * triggers one re-paint of the donut, which is cheap (no animation). */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
 }
 .tokenomics .container {
   max-width: 1600px;
@@ -1986,6 +1991,12 @@ a {
   overflow: hidden;
   position: relative;
   contain: layout style;
+  /* Sits between news and footer — animation-free, fixed-ish height.
+   * Skipping it during mid-page scroll frees compositor work for
+   * whatever IS in view. The .subscribe__bg layer is already display:none
+   * so no decorative blur to worry about on first paint-in. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 420px;
 }
 .subscribe .container {
   max-width: 1600px;
