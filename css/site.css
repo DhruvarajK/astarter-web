@@ -1023,8 +1023,13 @@ a {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  /* will-change removed — no transform animation runs on these cards
-   * (parallax was deliberately disabled). 3 wasted layers reclaimed. */
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  will-change: transform, box-shadow;
+}
+.gateway-card:hover {
+  transform: translateY(-8px) translateZ(0);
+  box-shadow: 0 12px 32px rgba(111, 0, 255, 0.15), 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: rgba(111, 0, 255, 0.4);
 }
 .gateway-card__icon {
   flex: 1;
@@ -1043,6 +1048,12 @@ a {
   display: block;
   pointer-events: none;
   border: none;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.gateway-card:hover .gateway-card__media,
+.gateway-card:hover .gateway-card__icon svg {
+  transform: scale(1.08) translateZ(0);
 }
 .gateway-card__body {
   flex-shrink: 0;
