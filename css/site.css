@@ -1,59 +1,18 @@
 /* Astarter landing — pure HTML/CSS/JS */
 
-/* ── Self-hosted fonts ──
- * Removed the Google Fonts <link> so we don't depend on fonts.googleapis.com.
- * In Brave (and other privacy browsers), 3rd-party fonts get extra scrutiny
- * which delays first paint. Local fonts are instant + cacheable forever.
+/* ── Self-hosted fonts: Inter Variable ──
+ * Switched from Poppins (5 weights, 5 files) to Inter Variable (1 file,
+ * all weights 100-900). Matches what Solana / Sui / Aptos / Optimism /
+ * Polygon / Uniswap / Linear / Vercel / Stripe all use — it's the de
+ * facto serious-protocol typeface.
  *
- * WOFF2 first (Brotli-compressed, ~65% smaller than TTF), TTF as fallback
- * for browsers older than ~2017. Browsers download ONE format, not both. */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../assets/fonts/Poppins-400.woff2") format("woff2"),
-       url("../assets/fonts/Poppins-400.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("../assets/fonts/Poppins-500.woff2") format("woff2"),
-       url("../assets/fonts/Poppins-500.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("../assets/fonts/Poppins-600.woff2") format("woff2"),
-       url("../assets/fonts/Poppins-600.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../assets/fonts/Poppins-700.woff2") format("woff2"),
-       url("../assets/fonts/Poppins-700.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url("../assets/fonts/Poppins-800.woff2") format("woff2"),
-       url("../assets/fonts/Poppins-800.ttf") format("truetype");
-}
+ * Single file ~352 KB; one HTTP request covers every weight on the page. */
 @font-face {
   font-family: "Inter";
   font-style: normal;
-  font-weight: 600;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("../assets/fonts/Inter-600.woff2") format("woff2"),
-       url("../assets/fonts/Inter-600.ttf") format("truetype");
+  src: url("../assets/fonts/InterVariable.woff2") format("woff2-variations");
 }
 
 html {
@@ -68,7 +27,7 @@ html {
   --purple: #6f00ff;
   --purple-hover: #8807ff;
   --bg: #040404;
-  --font: Poppins, system-ui, sans-serif;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* ── Design-token typography scale ─────────────────────────────────
    * Single source of truth for type sizes across every section.
@@ -322,7 +281,7 @@ a {
     backdrop-filter 0.3s ease,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
-  font-family: Poppins, sans-serif;
+  font-family: var(--font);
   /* Promote to own compositor layer so backdrop-filter blur is rasterized
    * on the GPU once per change, not recomputed every scroll frame. */
   transform: translateZ(0);
@@ -1223,7 +1182,7 @@ a {
   border-radius: 100px;
   font-size: 14px;
   font-weight: 600;
-  font-family: Inter, sans-serif;
+  font-family: var(--font);
   text-align: center;
   transition: opacity 0.2s;
 }

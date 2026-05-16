@@ -108,17 +108,15 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin />
     <link rel="dns-prefetch" href="https://prod.spline.design" />
 
-    <!-- ── Fonts: SELF-HOSTED via @font-face in site.css ──
-         (was Google Fonts + Typekit — those add ~200ms of 3rd-party
-         render-blocking in Brave because Shields scrutinize each request)
-         Poppins-400 is the body weight (used everywhere) — preloading it
-         prevents the visible re-flow when web fonts swap in. -->
-    <link rel="preload" href="assets/fonts/Poppins-400.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="assets/fonts/Poppins-600.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="assets/fonts/Poppins-700.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- ── Fonts: SELF-HOSTED Inter Variable via @font-face in site.css ──
+         Single variable font file covers every weight 100–900. One preload
+         instead of 3, one round-trip instead of 3, one font instead of 5
+         (was previously Poppins 5 weights + Inter 600). Matches the
+         de-facto Web3/DeFi standard (Solana, Sui, Aptos, Optimism, etc). -->
+    <link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
 
     <!-- ── Critical styles ── -->
-    <link rel="stylesheet" href="css/site.css?v=5.1" />
+    <link rel="stylesheet" href="css/site.css?v=5.2" />
 
     <!-- ── Preload: instant poster (41 KB) for hero LCP, NOT the heavy video ──
          fetchpriority="high" hints to the browser this is THE LCP candidate
