@@ -1233,7 +1233,11 @@ a {
 @media (max-width: 991px) {
   .gateway .container {
     --stack-gap: 10px;
-    --stack-size: 55vw;
+    /* Stack-size used to be 55vw — three cards × 55vw = 165vw, way wider
+     * than the viewport, so the side cards were clipped off-screen and
+     * the gateway section "went outside" on mobile/tablet. Now sized to
+     * fit exactly three cards plus two gaps within the viewport. */
+    --stack-size: calc((100vw - 32px - 2 * var(--stack-gap)) / 3);
   }
   .gateway__grid {
     grid-template-columns: repeat(3, var(--stack-size));
