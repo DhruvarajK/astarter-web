@@ -12,7 +12,7 @@
  * auto-delete stale caches on activate.
  */
 
-const VERSION = "astarter-v4.3";
+const VERSION = "astarter-v4.4";
 const SHELL = `${VERSION}-shell`;   /* HTML, manifest, sw self */
 const STATIC = `${VERSION}-static`; /* JS, CSS */
 const MEDIA  = `${VERSION}-media`;  /* images, video, svg, fonts, 3D */
@@ -37,7 +37,7 @@ const PRECACHE = [
   /* Optimized SVGs (now small enough to precache) */
   "/assets/gateway-circuit.svg",
   "/assets/gateway-lottie-1.svg",
-  "/assets/gateway-lottie-2.svg",
+  "/assets/gateway-lottie-2.svg?v=2",
   "/assets/gateway-lottie-3.svg",
 ];
 
