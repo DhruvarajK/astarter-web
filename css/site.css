@@ -1607,20 +1607,17 @@ a {
   width: max-content;
 }
 @keyframes partnerScrollLeft {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
 }
 @keyframes partnerScrollRight {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+.partner-marquee__track {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .partner-marquee__track--left {
   animation: partnerScrollLeft 45s linear infinite;
@@ -1628,7 +1625,9 @@ a {
 .partner-marquee__track--right {
   animation: partnerScrollRight 45s linear infinite;
 }
-/* Promote ONLY while running; JS toggles this class alongside animation pause */
+.partner-marquee__track.is-paused {
+  animation-play-state: paused;
+}
 .partner-marquee__track.is-active {
   will-change: transform;
 }
@@ -2347,4 +2346,54 @@ a {
   .hero__video { display: none; }
   .partner-marquee__track--left,
   .partner-marquee__track--right { animation: none; }
+}
+
+.tokenomics,
+.news,
+.subscribe,
+.site-footer {
+  content-visibility: auto;
+}
+.tokenomics      { contain-intrinsic-size: 0 900px; }
+.news            { contain-intrinsic-size: 0 700px; }
+.subscribe       { contain-intrinsic-size: 0 360px; }
+.site-footer     { contain-intrinsic-size: 0 480px; }
+
+.partner-marquee {
+  contain: layout paint;
+}
+.partner-marquee__viewport {
+  contain: layout paint;
+}
+
+.hero:not(.in-view)::after {
+  animation-play-state: paused;
+}
+
+.gateway:not(.in-view) .gateway-card,
+.gateway:not(.in-view) .gateway-card__media,
+.gateway:not(.in-view) .gateway-core__logo-img,
+.gateway:not(.in-view) .gateway-core__text,
+.abox:not(.in-view) .abox__copy,
+.roadmap:not(.in-view) .roadmap__line-fill,
+.partner-marquee:not(.in-view) .partner-marquee__track {
+  will-change: auto;
+}
+
+.gateway:not(.in-view) .gateway-card,
+.gateway:not(.in-view) .gateway-card__media,
+.gateway:not(.in-view) .gateway-card__icon svg,
+.gateway:not(.in-view) .gateway-core,
+.gateway:not(.in-view) .gateway-core__decor,
+.gateway:not(.in-view) .gateway-core__overlay,
+.gateway:not(.in-view) .gateway-core__logo-img,
+.gateway:not(.in-view) .gateway-core__text,
+.gateway:not(.in-view) .gateway-core__cta a,
+.abox:not(.in-view) .abox__copy,
+.story:not(.in-view) .story__word,
+.nodes:not(.in-view) .nodes__head,
+.tokenomics:not(.in-view) .tokenomics__legend-item,
+.roadmap:not(.in-view) .roadmap__line-fill,
+.roadmap:not(.in-view) .roadmap__head {
+  transition: none !important;
 }

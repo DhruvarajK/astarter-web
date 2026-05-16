@@ -64,6 +64,50 @@ function initNodesSplineViewer() {
  * the DOM (no remount), the GPU stops compositing it (no paint cost), and
  * scroll-up no longer triggers a multi-second reload.
  */
+function detectSplineDprCap() {
+  try {
+    const c = document.createElement("canvas");
+    const gl = c.getContext("webgl") || c.getContext("experimental-webgl");
+    if (!gl) return 1;
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    const r = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "") : "";
+    if (/(SwiftShader|llvmpipe|Software|ANGLE\s*\(Software)/i.test(r)) return 1;
+  } catch (_) { return 1; }
+  const cores = navigator.hardwareConcurrency || 4;
+  const mobile = window.matchMedia("(max-width: 900px)").matches;
+  if (mobile) return 1.25;
+  if (cores <= 2) return 1.25;
+  if (cores <= 4) return 1.5;
+  return 2;
+}
+
+function initSplineSharpness() {
+  const sv = document.getElementById("nodes-spline-viewer");
+  if (!sv) return;
+  const targetDpr = Math.min(window.devicePixelRatio || 1, detectSplineDprCap());
+  function apply() {
+    const app = sv.application || sv._app;
+    const renderer = app && app.renderer;
+    if (!renderer || typeof renderer.setPixelRatio !== "function") return false;
+    const rect = sv.getBoundingClientRect();
+    renderer.setPixelRatio(targetDpr);
+    try { renderer.setSize(Math.round(rect.width), Math.round(rect.height), false); } catch (_) {}
+    return true;
+  }
+  function pollUntil(deadline) {
+    if (apply()) return;
+    if (performance.now() > deadline) return;
+    setTimeout(() => pollUntil(deadline), 400);
+  }
+  sv.addEventListener("load", () => {
+    requestAnimationFrame(() => pollUntil(performance.now() + 15000));
+  });
+  pollUntil(performance.now() + 15000);
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => apply()).observe(sv);
+  }
+}
+
 function initSplineViewerPause() {
   const splineEl = document.getElementById("nodes-spline-viewer");
   const section  = document.getElementById("nodes-section") || (splineEl && splineEl.closest("section"));
@@ -752,8 +796,8 @@ function initPartners() {
     (entries) => {
       const visible = entries[0] && entries[0].isIntersecting;
       for (let i = 0; i < tracks.length; i++) {
-        tracks[i].style.animationPlayState = visible ? "running" : "paused";
         tracks[i].classList.toggle("is-active", visible);
+        tracks[i].classList.toggle("is-paused", !visible);
       }
     },
     { rootMargin: "100px 0px" }
@@ -1757,12 +1801,103 @@ if (
   });
 })();
 
+function setupAboxLifecycle() {
+  if (typeof IntersectionObserver === "undefined") return;
+  const section = document.getElementById("abox-scroll-area");
+  if (!section) return;
+  let disposed = false;
+  new IntersectionObserver(
+    (entries) => {
+      const e = entries[entries.length - 1];
+      if (!e) return;
+      if (e.isIntersecting) {
+        if (disposed) {
+          window.__astarterAboxStarted = false;
+          miniPcTemplatePromise = null;
+          initAboxWhenVisible();
+          disposed = false;
+        }
+      } else if (!disposed && window.__astarterAboxStarted && typeof window.__disposeAbox === "function") {
+        try { window.__disposeAbox(); } catch (_) {}
+        window.__disposeAbox = null;
+        miniPcTemplatePromise = null;
+        disposed = true;
+      }
+    },
+    { rootMargin: "200% 0px" }
+  ).observe(section);
+}
+
+function setupSplineLifecycle() {
+  if (typeof IntersectionObserver === "undefined") return;
+  const section = document.getElementById("nodes-section");
+  const sv = document.getElementById("nodes-spline-viewer");
+  if (!section || !sv) return;
+  const placeholder = document.createElement("div");
+  placeholder.setAttribute("aria-hidden", "true");
+  placeholder.style.cssText = "width:100%;height:100%;background:#000;display:block;";
+  let attached = true;
+  new IntersectionObserver(
+    (entries) => {
+      const e = entries[entries.length - 1];
+      if (!e) return;
+      if (e.isIntersecting && !attached) {
+        if (placeholder.parentNode) {
+          placeholder.parentNode.replaceChild(sv, placeholder);
+          attached = true;
+        }
+      } else if (!e.isIntersecting && attached) {
+        if (sv.parentNode) {
+          sv.parentNode.replaceChild(placeholder, sv);
+          attached = false;
+        }
+      }
+    },
+    { rootMargin: "200% 0px" }
+  ).observe(section);
+}
+
+function initInViewSections() {
+  if (typeof IntersectionObserver === "undefined") return;
+  const selectors = [
+    ".hero",
+    ".story",
+    ".abox",
+    ".gateway",
+    ".nodes",
+    ".tokenomics",
+    ".partner-marquee",
+    ".roadmap",
+    ".news",
+    ".subscribe",
+    ".site-footer",
+  ];
+  const targets = [];
+  selectors.forEach((s) => {
+    document.querySelectorAll(s).forEach((el) => targets.push(el));
+  });
+  if (!targets.length) return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        e.target.classList.toggle("in-view", e.isIntersecting);
+      }
+    },
+    { rootMargin: "200px 0px", threshold: 0 }
+  );
+  targets.forEach((t) => io.observe(t));
+}
+
 patchResolvedAssetUrls();
 initNodesSplineViewer();
+initSplineSharpness();
 initSplineViewerPause();
 initVideoA11y();
+initInViewSections();
 
 initAboxWhenVisible();
+setupAboxLifecycle();
+setupSplineLifecycle();
 
 /* Critical inits — needed for first-paint UX */
 initNav();
