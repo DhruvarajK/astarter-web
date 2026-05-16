@@ -1132,6 +1132,8 @@ a {
   opacity: 0;
   transition: opacity 0.8s ease;
   filter: drop-shadow(0 1px 6px rgba(255, 255, 255, 0.04));
+  transform: translateZ(0);
+  will-change: opacity;
 }
 .gateway-core--active .gateway-core__logo-img {
   opacity: 1;
@@ -1151,12 +1153,13 @@ a {
   color: rgba(255, 255, 255, 0.88);
   line-height: 1.6;
   opacity: 0;
-  transform: translateY(14px);
+  transform: translateY(14px) translateZ(0);
   transition: opacity 0.8s ease, transform 0.8s ease;
+  will-change: opacity, transform;
 }
 .gateway-core__text.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) translateZ(0);
 }
 .gateway-core__text h3 {
   margin: 0 0 10px;
